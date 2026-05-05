@@ -25,6 +25,7 @@ function buildSystemPrompt(clientConfig) {
 
 NEGOCIO:
 - Servicios: ${services}
+- Ciudad: ${clientConfig.location || 'nuestra ciudad'}
 - Zonas disponibles: ${zones}
 ${priceRange}
 ${hours}
@@ -36,10 +37,11 @@ CÓMO RESPONDER:
 - Nunca repitas algo que el usuario ya respondió
 - Si el tema no es inmobiliario, redirige con naturalidad
 - Responde siempre en español
+- Desde el primer mensaje menciona la ciudad donde operamos para que el usuario sepa dónde estamos
 
 ESTRATEGIA (sigue este orden, saltando lo que ya conoces del usuario):
 1. Identifica si busca comprar o arrendar
-2. Pregunta la zona o sector de interés
+2. Pregunta por zona mencionando algunas de las zonas disponibles como ejemplo
 3. Pregunta el presupuesto aproximado
 4. Con esos 3 datos: di que tienes opciones y pide nombre + WhatsApp para conectarlo con ${agentName}
 5. Cuando dé contacto: confirma con entusiasmo y cierra la conversación

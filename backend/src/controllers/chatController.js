@@ -64,7 +64,8 @@ async function greetingController(req, res) {
     if (!client) return res.status(404).json({ error: 'Client not found' });
 
     const name = client.config.business_name || 'nosotros';
-    const greeting = `¡Hola! Soy el asistente virtual de ${name}. ¿Estás buscando comprar o arrendar una propiedad?`;
+    const city = client.config.location ? ` en ${client.config.location}` : '';
+    const greeting = `¡Hola! Soy el asistente virtual de ${name}${city}. ¿Estás buscando comprar o arrendar una propiedad?`;
     res.json({ greeting });
   } catch (err) {
     res.json({ greeting: '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?' });

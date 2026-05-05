@@ -32,7 +32,7 @@ app.use(cors({
 app.use(express.json({ limit: '50kb' }));
 
 // Serve widget files
-const widgetPath = path.resolve(__dirname, '..', '..', 'widget');
+const widgetPath = path.resolve(__dirname, '..', 'widget');
 app.use('/widget', express.static(widgetPath));
 
 // Routes

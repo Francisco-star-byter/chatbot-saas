@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmobiliaria Costa Caribe — Santa Marta</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f9ff;
+      color: #1e293b;
+    }
+    header {
+      background: #0c4a6e;
+      color: white;
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .hero {
+      background: linear-gradient(135deg, #0c4a6e, #0ea5e9);
+      color: white;
+      padding: 70px 40px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 38px; margin-bottom: 10px; }
+    .hero p { font-size: 17px; opacity: .88; margin-bottom: 6px; }
+    .hero .sub { font-size: 14px; opacity: .7; }
+    .listings {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 22px;
+      padding: 44px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+      transition: transform .2s;
+    }
+    .card:hover { transform: translateY(-3px); }
+    .card-img {
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+    }
+    .c1 { background: #bae6fd; }
+    .c2 { background: #bbf7d0; }
+    .c3 { background: #fde68a; }
+    .c4 { background: #fecaca; }
+    .card-body { padding: 16px; }
+    .card-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .price { color: #0284c7; font-weight: 700; font-size: 17px; }
+    .zone { color: #64748b; font-size: 13px; margin-top: 4px; }
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #94a3b8;
+      font-size: 13px;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>🏖️ Inmobiliaria Costa Caribe — Santa Marta</header>
+
+<div class="hero">
+  <h1>Tu propiedad en el Caribe te espera</h1>
+  <p>Apartamentos, casas y lotes en las mejores zonas de Santa Marta</p>
+  <p class="sub">Rodadero · Bello Horizonte · Taganga · Pozos Colorados · Centro Histórico</p>
+</div>
+
+<div class="listings">
+  <div class="card">
+    <div class="card-img c1">🌊</div>
+    <div class="card-body">
+      <h3>Apto frente al mar 2 hab.</h3>
+      <div class="price">$420.000.000 COP</div>
+      <div class="zone">📍 Rodadero</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-img c2">🏡</div>
+    <div class="card-body">
+      <h3>Casa con piscina 3 hab.</h3>
+      <div class="price">$650.000.000 COP</div>
+      <div class="zone">📍 Bello Horizonte</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-img c3">🏢</div>
+    <div class="card-body">
+      <h3>Apto estudio vacacional</h3>
+      <div class="price">$1.800.000 COP/mes</div>
+      <div class="zone">📍 Taganga</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-img c4">🌿</div>
+    <div class="card-body">
+      <h3>Lote con vista al mar</h3>
+      <div class="price">$280.000.000 COP</div>
+      <div class="zone">📍 Pozos Colorados</div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 Inmobiliaria Costa Caribe · Santa Marta, Colombia · Todos los derechos reservados</footer>
+
+<!-- WIDGET EMBEBIDO -->
+<script
+  src="./widget.js"
+  data-client-id="873799eb-8283-4520-a5f7-f4da4a0ebf97"
+  data-api-url="http://localhost:3000">
+</script>
+
+</body>
+</html>

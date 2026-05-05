@@ -53,4 +53,20 @@ async function chatController(req, res, next) {
   }
 }
 
-module.exports = { chatController };
+async function greetingController(req, res) {
+  const { client_id } = req.query;
+  if (!client_id) return res.status(400).json({ error: 'Missing client_id' });
+
+  try {
+    const client = await getClientWithConfig(client_id);
+    if (!client) return res.status(404).json({ error: 'Client not found' });
+
+    const name = client.config.business_name || 'nosotros';
+    const greeting = `¡Hola! Soy el asistente virtual de ${name}. ¿Estás buscando comprar o arrendar una propiedad?`;
+    res.json({ greeting });
+  } catch (err) {
+    res.json({ greeting: '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?' });
+  }
+}
+
+module.exports = { chatController, greetingController };

@@ -198,7 +198,17 @@
   }
 
   // ── UI Helpers ───────────────────────────────────────────────────────────────
-  function toggleChat() {
+  async function fetchGreeting() {
+    try {
+      const res = await fetch(API_URL.replace('/chat', '/chat/greeting') + '?client_id=' + CLIENT_ID);
+      const data = await res.json();
+      return data.greeting || '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
+    } catch {
+      return '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
+    }
+  }
+
+  async function toggleChat() {
     isOpen = !isOpen;
     const box = document.getElementById('cb-box');
     const btn = document.getElementById('cb-btn');
@@ -206,7 +216,8 @@
     btn.innerHTML = isOpen ? '✕' : '💬';
     if (isOpen) {
       if (document.getElementById('cb-messages').children.length === 0) {
-        addMessage('bot', '¡Hola! Soy tu asesor inmobiliario virtual. ¿Estás buscando comprar o arrendar una propiedad?');
+        const greeting = await fetchGreeting();
+        addMessage('bot', greeting);
       }
       document.getElementById('cb-input').focus();
     }

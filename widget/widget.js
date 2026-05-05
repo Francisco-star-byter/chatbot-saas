@@ -1,7 +1,9 @@
 (function () {
   'use strict';
 
-  const script = document.currentScript;
+  const script = document.currentScript ||
+    document.querySelector('script[data-client-id]') ||
+    document.querySelector('script[src*="widget.js"]');
   const CLIENT_ID = script?.getAttribute('data-client-id') || '';
   const API_URL = (script?.getAttribute('data-api-url') || 'http://localhost:3000') + '/chat';
 

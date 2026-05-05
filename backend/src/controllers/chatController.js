@@ -2,6 +2,7 @@ const { getClientWithConfig } = require('../services/clientService');
 const { getOrCreateConversation, getRecentMessages, saveMessage } = require('../services/conversationService');
 const { saveLead } = require('../services/leadService');
 const { buildSystemPrompt, generateReply } = require('../services/claudeService');
+const { sendTelegramAlert } = require('../services/notificationService');
 const logger = require('../utils/logger');
 
 async function chatController(req, res, next) {
@@ -37,6 +38,7 @@ async function chatController(req, res, next) {
       await saveLead(client_id, lead);
       leadDetected = true;
       logger.info('chatController', 'Lead detected and saved', { client_id, convId });
+      sendTelegramAlert(lead, client.config.business_name || client_id).catch(() => {});
     }
 
     logger.info('chatController', 'Response sent', { client_id, convId, leadDetected });

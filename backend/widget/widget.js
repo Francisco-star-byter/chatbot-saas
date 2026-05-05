@@ -149,8 +149,46 @@
     #cb-send:hover { background: #1d4ed8; }
     #cb-send:disabled { background: #94a3b8; cursor: not-allowed; }
 
+    #cb-bubble {
+      position: fixed;
+      bottom: 90px;
+      right: 24px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #1e293b;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.13);
+      z-index: 9997;
+      max-width: 210px;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(8px) scale(0.95);
+      transition: opacity .35s, transform .35s;
+      pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    #cb-bubble.cb-bubble-show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    #cb-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      right: 22px;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      transform: rotate(45deg);
+    }
+
     @media (max-width: 400px) {
       #cb-box { width: calc(100vw - 24px); right: 12px; bottom: 80px; }
+      #cb-bubble { right: 12px; }
     }
   `;
 
@@ -185,6 +223,11 @@
       </form>
     `;
 
+    // Bubble
+    const bubble = document.createElement('div');
+    bubble.id = 'cb-bubble';
+    document.body.appendChild(bubble);
+
     document.body.appendChild(btn);
     document.body.appendChild(box);
 
@@ -215,6 +258,7 @@
     box.classList.toggle('cb-hidden', !isOpen);
     btn.innerHTML = isOpen ? '✕' : '💬';
     if (isOpen) {
+      hideBubblePermanently();
       if (document.getElementById('cb-messages').children.length === 0) {
         const greeting = await fetchGreeting();
         addMessage('bot', greeting);
@@ -251,6 +295,39 @@
   function setSendDisabled(disabled) {
     document.getElementById('cb-send').disabled = disabled;
     document.getElementById('cb-input').disabled = disabled;
+  }
+
+  // ── Bubble ───────────────────────────────────────────────────────────────────
+  const bubbleMessages = [
+    '👋 ¿Tienes alguna duda? ¡Pregúntame!',
+    '🏠 ¿Buscas comprar o arrendar?',
+    '✨ Puedo ayudarte a encontrar tu propiedad ideal',
+    '💬 ¡Escríbeme, respondo al instante!',
+  ];
+  let bubbleIndex = 0;
+  let bubbleTimer = null;
+
+  function showBubble() {
+    if (isOpen) return;
+    const el = document.getElementById('cb-bubble');
+    if (!el) return;
+    el.textContent = bubbleMessages[bubbleIndex % bubbleMessages.length];
+    bubbleIndex++;
+    el.classList.add('cb-bubble-show');
+    setTimeout(() => el.classList.remove('cb-bubble-show'), 4000);
+  }
+
+  function startBubble() {
+    setTimeout(() => {
+      showBubble();
+      bubbleTimer = setInterval(showBubble, 10000);
+    }, 3000);
+  }
+
+  function hideBubblePermanently() {
+    if (bubbleTimer) clearInterval(bubbleTimer);
+    const el = document.getElementById('cb-bubble');
+    if (el) el.classList.remove('cb-bubble-show');
   }
 
   // ── API ──────────────────────────────────────────────────────────────────────
@@ -296,6 +373,7 @@
   function init() {
     injectStyles();
     buildWidget();
+    startBubble();
   }
 
   if (document.readyState === 'loading') {

@@ -5,7 +5,8 @@
     document.querySelector('script[data-client-id]') ||
     document.querySelector('script[src*="widget.js"]');
   const CLIENT_ID = script?.getAttribute('data-client-id') || '';
-  const API_URL = (script?.getAttribute('data-api-url') || 'http://localhost:3000') + '/chat';
+  const BASE_URL = script?.getAttribute('data-api-url') || 'http://localhost:3000';
+  const API_URL = BASE_URL + '/chat';
 
   if (!CLIENT_ID) {
     console.error('[ChatBot] Missing data-client-id attribute');
@@ -243,10 +244,11 @@
   // ── UI Helpers ───────────────────────────────────────────────────────────────
   async function fetchGreeting() {
     try {
-      const res = await fetch(API_URL.replace('/chat', '/chat/greeting') + '?client_id=' + CLIENT_ID);
+      const res = await fetch(BASE_URL + '/chat/greeting?client_id=' + CLIENT_ID);
       const data = await res.json();
       return data.greeting || '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
-    } catch {
+    } catch (err) {
+      console.error('[ChatBot] fetchGreeting error:', err);
       return '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
     }
   }

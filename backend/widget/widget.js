@@ -130,6 +130,10 @@
       outline: none;
       resize: none;
       font-family: inherit;
+      line-height: 1.4;
+      max-height: 100px;
+      overflow-y: auto;
+      align-self: flex-end;
     }
     #cb-input:focus { border-color: #2563eb; }
     #cb-send {
@@ -219,7 +223,7 @@
       </div>
       <div id="cb-messages"></div>
       <form id="cb-form" autocomplete="off">
-        <input id="cb-input" type="text" placeholder="Escribe tu mensaje..." maxlength="500" />
+        <textarea id="cb-input" placeholder="Escribe tu mensaje..." maxlength="500" rows="1"></textarea>
         <button id="cb-send" type="submit" aria-label="Enviar">➤</button>
       </form>
     `;
@@ -233,7 +237,12 @@
     document.body.appendChild(box);
 
     document.getElementById('cb-form').onsubmit = handleSubmit;
-    document.getElementById('cb-input').onkeydown = function (e) {
+    const inputEl = document.getElementById('cb-input');
+    inputEl.oninput = function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    };
+    inputEl.onkeydown = function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         handleSubmit(e);
@@ -340,6 +349,7 @@
     if (!message) return;
 
     input.value = '';
+    input.style.height = 'auto';
     addMessage('user', message);
     setSendDisabled(true);
     showTyping();

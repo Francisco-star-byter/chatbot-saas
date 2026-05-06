@@ -1,6 +1,6 @@
 const logger = require('../utils/logger');
 
-async function sendTelegramAlert(lead, clientName) {
+async function sendTelegramAlert(lead, clientName, isUpdate = false) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -9,15 +9,32 @@ async function sendTelegramAlert(lead, clientName) {
     return;
   }
 
-  const lines = [
-    `🏠 *Nuevo lead — ${clientName}*`,
-    lead.nombre        ? `👤 Nombre: ${lead.nombre}`              : null,
-    lead.phone         ? `📱 WhatsApp: ${lead.phone}`             : null,
-    lead.operation     ? `🔑 Operación: ${lead.operation}`        : null,
-    lead.property_type ? `🏡 Tipo: ${lead.property_type}`         : null,
-    lead.zone          ? `📍 Zona: ${lead.zone}`                  : null,
-    lead.budget        ? `💰 Presupuesto: ${lead.budget}`         : null,
-  ].filter(Boolean);
+  let lines;
+
+  if (isUpdate) {
+    const parts = [
+      lead.operation     ? `${lead.operation}` : null,
+      lead.property_type ? `tipo ${lead.property_type}` : null,
+      lead.zone          ? `en ${lead.zone}` : null,
+      lead.budget        ? `con presupuesto de ${lead.budget}` : null,
+    ].filter(Boolean);
+
+    lines = [
+      `⚠️ *Actualización de lead*`,
+      `${lead.nombre || 'Cliente'} · ${lead.phone || 'sin número'}`,
+      parts.length > 0 ? `Busca ${parts.join(', ')}.` : null,
+    ].filter(Boolean);
+  } else {
+    lines = [
+      `🏠 *Nuevo lead — ${clientName}*`,
+      lead.nombre        ? `👤 Nombre: ${lead.nombre}`        : null,
+      lead.phone         ? `📱 WhatsApp: ${lead.phone}`       : null,
+      lead.operation     ? `🔑 Operación: ${lead.operation}`  : null,
+      lead.property_type ? `🏡 Tipo: ${lead.property_type}`   : null,
+      lead.zone          ? `📍 Zona: ${lead.zone}`            : null,
+      lead.budget        ? `💰 Presupuesto: ${lead.budget}`   : null,
+    ].filter(Boolean);
+  }
 
   const text = lines.join('\n');
 

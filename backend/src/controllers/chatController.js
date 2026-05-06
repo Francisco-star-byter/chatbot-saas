@@ -35,10 +35,10 @@ async function chatController(req, res, next) {
     // 7. Save lead if detected
     let leadDetected = false;
     if (lead) {
-      await saveLead(client_id, lead);
+      const { isUpdate } = await saveLead(client_id, lead);
       leadDetected = true;
-      logger.info('chatController', 'Lead detected and saved', { client_id, convId });
-      sendTelegramAlert(lead, client.config.business_name || client_id).catch(() => {});
+      logger.info('chatController', 'Lead detected and saved', { client_id, convId, isUpdate });
+      sendTelegramAlert(lead, client.config.business_name || client_id, isUpdate).catch(() => {});
     }
 
     logger.info('chatController', 'Response sent', { client_id, convId, leadDetected });

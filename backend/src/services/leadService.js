@@ -25,7 +25,7 @@ async function saveLead(clientId, leadData) {
         await supabase.from('leads').update(updates).eq('id', existing.id);
         logger.info('leadService', 'Lead updated (duplicate phone)', { id: existing.id, clientId });
       }
-      return existing.id;
+      return { id: existing.id, isUpdate: true, leadData: { ...leadData } };
     }
   }
 
@@ -47,7 +47,7 @@ async function saveLead(clientId, leadData) {
   if (error) throw new Error(`Failed to save lead: ${error.message}`);
 
   logger.info('leadService', 'Lead saved', { id: data.id, clientId, phone, zone, budget, operation, property_type });
-  return data.id;
+  return { id: data.id, isUpdate: false, leadData: { ...leadData } };
 }
 
 async function getLeads(clientId, { status, limit = 50, offset = 0 } = {}) {

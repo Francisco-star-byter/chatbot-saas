@@ -136,6 +136,8 @@
       align-self: flex-end;
     }
     #cb-input:focus { border-color: #2563eb; }
+    #cb-input::-webkit-scrollbar { display: none; }
+    #cb-input { scrollbar-width: none; }
     #cb-send {
       background: #2563eb;
       color: #fff;

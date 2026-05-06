@@ -15,7 +15,7 @@ async function getClientWithConfig(clientId) {
 
   const { data: config, error: configError } = await supabase
     .from('business_config')
-    .select('tone, zones, services, custom_prompt')
+    .select('tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours')
     .eq('client_id', clientId)
     .single();
 

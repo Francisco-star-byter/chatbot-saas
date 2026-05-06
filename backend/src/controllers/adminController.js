@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 async function createClient(req, res, next) {
   try {
-    const { name, tone, zones, services, custom_prompt } = req.body;
+    const { name, tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours } = req.body;
 
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'name is required' });
@@ -27,6 +27,11 @@ async function createClient(req, res, next) {
         zones: zones || [],
         services: services || [],
         custom_prompt: custom_prompt || '',
+        business_name: business_name || name.trim(),
+        location: location || '',
+        agent_name: agent_name || '',
+        price_range: price_range || '',
+        working_hours: working_hours || '',
       });
 
     if (configError) throw new Error(configError.message);
@@ -58,7 +63,7 @@ async function getClientConfig(req, res, next) {
 
     const { data: config } = await supabase
       .from('business_config')
-      .select('tone, zones, services, custom_prompt')
+      .select('tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours')
       .eq('client_id', id)
       .single();
 
@@ -71,7 +76,7 @@ async function getClientConfig(req, res, next) {
 async function updateClientConfig(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, tone, zones, services, custom_prompt } = req.body;
+    const { name, tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours } = req.body;
 
     // Verify client exists
     const { data: client, error: clientError } = await supabase
@@ -93,6 +98,11 @@ async function updateClientConfig(req, res, next) {
     if (zones !== undefined) configUpdates.zones = zones;
     if (services !== undefined) configUpdates.services = services;
     if (custom_prompt !== undefined) configUpdates.custom_prompt = custom_prompt;
+    if (business_name !== undefined) configUpdates.business_name = business_name;
+    if (location !== undefined) configUpdates.location = location;
+    if (agent_name !== undefined) configUpdates.agent_name = agent_name;
+    if (price_range !== undefined) configUpdates.price_range = price_range;
+    if (working_hours !== undefined) configUpdates.working_hours = working_hours;
 
     if (Object.keys(configUpdates).length > 0) {
       const { error: configError } = await supabase

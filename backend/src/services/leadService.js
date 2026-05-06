@@ -2,7 +2,7 @@ const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
 
 async function saveLead(clientId, leadData) {
-  const { name, phone, budget, zone } = leadData;
+  const { name, phone, budget, zone, operation, property_type } = leadData;
 
   // Check if lead with same phone already exists for this client
   if (phone) {
@@ -14,11 +14,12 @@ async function saveLead(clientId, leadData) {
       .single();
 
     if (existing) {
-      // Update existing lead with any new data
       const updates = {};
       if (name) updates.name = name;
       if (budget) updates.budget = budget;
       if (zone) updates.zone = zone;
+      if (operation) updates.operation = operation;
+      if (property_type) updates.property_type = property_type;
 
       if (Object.keys(updates).length > 0) {
         await supabase.from('leads').update(updates).eq('id', existing.id);
@@ -36,6 +37,8 @@ async function saveLead(clientId, leadData) {
       phone: phone || null,
       budget: budget || null,
       zone: zone || null,
+      operation: operation || null,
+      property_type: property_type || null,
       status: 'new',
     })
     .select('id')
@@ -43,7 +46,7 @@ async function saveLead(clientId, leadData) {
 
   if (error) throw new Error(`Failed to save lead: ${error.message}`);
 
-  logger.info('leadService', 'Lead saved', { id: data.id, clientId, phone, zone, budget });
+  logger.info('leadService', 'Lead saved', { id: data.id, clientId, phone, zone, budget, operation, property_type });
   return data.id;
 }
 

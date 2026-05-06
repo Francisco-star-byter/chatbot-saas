@@ -11,10 +11,12 @@ async function sendTelegramAlert(lead, clientName) {
 
   const lines = [
     `🏠 *Nuevo lead — ${clientName}*`,
-    lead.nombre ? `👤 Nombre: ${lead.nombre}` : null,
-    lead.phone  ? `📱 WhatsApp: ${lead.phone}`  : null,
-    lead.zone   ? `📍 Zona: ${lead.zone}`       : null,
-    lead.budget ? `💰 Presupuesto: ${lead.budget}` : null,
+    lead.nombre        ? `👤 Nombre: ${lead.nombre}`              : null,
+    lead.phone         ? `📱 WhatsApp: ${lead.phone}`             : null,
+    lead.operation     ? `🔑 Operación: ${lead.operation}`        : null,
+    lead.property_type ? `🏡 Tipo: ${lead.property_type}`         : null,
+    lead.zone          ? `📍 Zona: ${lead.zone}`                  : null,
+    lead.budget        ? `💰 Presupuesto: ${lead.budget}`         : null,
   ].filter(Boolean);
 
   const text = lines.join('\n');

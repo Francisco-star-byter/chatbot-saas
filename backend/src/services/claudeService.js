@@ -41,16 +41,19 @@ CÓMO RESPONDER:
 
 ESTRATEGIA (sigue este orden, saltando lo que ya conoces del usuario):
 1. Identifica si busca comprar o arrendar
-2. Pregunta por zona mencionando algunas de las zonas disponibles como ejemplo
-3. Pregunta el presupuesto aproximado
-4. Con esos 3 datos: di que tienes opciones y pide nombre + WhatsApp para conectarlo con ${agentName}
-5. Cuando dé contacto: confirma con entusiasmo y cierra la conversación
+2. Pregunta si busca apartamento o casa
+3. Pregunta por zona mencionando algunas de las zonas disponibles como ejemplo
+4. Pregunta el presupuesto aproximado
+5. Con esos 4 datos: di que tienes opciones y pide nombre + WhatsApp para conectarlo con ${agentName}
+6. Cuando dé contacto: confirma con entusiasmo y cierra la conversación
 
-CAPTURA DE LEAD — cuando el usuario muestre intención clara (zona + presupuesto) o dé su contacto, añade al FINAL de tu respuesta en línea separada:
-[LEAD:nombre=X,phone=X,budget=X,zone=X]
+CAPTURA DE LEAD — cuando el usuario muestre intención clara o dé su contacto, añade al FINAL de tu respuesta en línea separada:
+[LEAD:nombre=X,phone=X,budget=X,zone=X,operation=X,property_type=X]
 
 Reglas del tag:
 - Solo incluye los campos que el usuario mencionó explícitamente
+- operation: usar "compra" o "arriendo" según lo que dijo
+- property_type: usar "apartamento" o "casa" según lo que dijo
 - Omite los campos que no mencionó
 - No uses valores de ejemplo ni texto literal como VALOR, null o undefined
 - No incluyas el tag si no hay datos reales del usuario`;
@@ -79,7 +82,8 @@ function extractLeadTag(text) {
   // Lead is only valid if it has a phone OR both budget and zone
   const hasPhone = !!lead.phone;
   const hasBudgetAndZone = !!(lead.budget && lead.zone);
-  const isValid = hasPhone || hasBudgetAndZone;
+  const hasOperationAndProperty = !!(lead.operation && lead.property_type);
+  const isValid = hasPhone || hasBudgetAndZone || hasOperationAndProperty;
 
   return {
     cleanText,

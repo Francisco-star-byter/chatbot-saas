@@ -367,7 +367,11 @@
       removeTyping();
 
       if (!res.ok) {
-        addMessage('bot', 'Hubo un problema. Por favor intenta de nuevo.');
+        if (data.error === 'plan_limit_reached') {
+          addMessage('bot', 'El chat no está disponible por el momento. Por favor contáctenos directamente.');
+        } else {
+          addMessage('bot', 'Hubo un problema. Por favor intenta de nuevo.');
+        }
         console.error('[ChatBot] API error:', data);
       } else {
         conversationId = data.conversation_id;

@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 async function getClientWithConfig(clientId) {
   const { data: client, error: clientError } = await supabase
     .from('clients')
-    .select('id, name')
+    .select('id, name, plan_id')
     .eq('id', clientId)
     .single();
 
@@ -13,24 +13,23 @@ async function getClientWithConfig(clientId) {
     return null;
   }
 
-  const { data: config, error: configError } = await supabase
-    .from('business_config')
-    .select('tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours')
-    .eq('client_id', clientId)
-    .single();
-
-  if (configError) {
-    logger.warn('clientService', 'Config not found, using defaults', { clientId });
-  }
+  const [{ data: config }, { data: plan }] = await Promise.all([
+    supabase
+      .from('business_config')
+      .select('tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours')
+      .eq('client_id', clientId)
+      .single(),
+    supabase
+      .from('plans')
+      .select('max_conversations_per_month, max_leads, telegram_alerts')
+      .eq('id', client.plan_id || 'free')
+      .single(),
+  ]);
 
   return {
     ...client,
-    config: config || {
-      tone: 'profesional',
-      zones: [],
-      services: [],
-      custom_prompt: '',
-    },
+    config: config || { tone: 'profesional', zones: [], services: [], custom_prompt: '' },
+    plan: plan || { max_conversations_per_month: 100, max_leads: 20, telegram_alerts: false },
   };
 }
 

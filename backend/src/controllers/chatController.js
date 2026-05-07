@@ -3,42 +3,55 @@ const { getOrCreateConversation, getRecentMessages, saveMessage } = require('../
 const { saveLead } = require('../services/leadService');
 const { buildSystemPrompt, generateReply } = require('../services/claudeService');
 const { sendTelegramAlert } = require('../services/notificationService');
+const { checkLimit, incrementUsage } = require('../services/usageService');
 const logger = require('../utils/logger');
 
 async function chatController(req, res, next) {
   const { client_id, message, conversation_id } = req.body;
 
   try {
-    // 1. Validate client and get business config
+    // 1. Validate client and get business config + plan
     const client = await getClientWithConfig(client_id);
     if (!client) {
       return res.status(404).json({ error: 'Client not found' });
     }
 
-    // 2. Get or create conversation (user identified by IP)
+    // 2. Check plan limit
+    const { allowed, count } = await checkLimit(client_id, client.plan.max_conversations_per_month);
+    if (!allowed) {
+      logger.warn('chatController', 'Plan limit reached', { client_id, count });
+      return res.status(429).json({ error: 'plan_limit_reached' });
+    }
+
+    // 3. Get or create conversation (user identified by IP)
     const userIdentifier = req.ip || 'anonymous';
     const convId = await getOrCreateConversation(client_id, conversation_id, userIdentifier);
 
-    // 3. Get recent message history for context
+    // 4. Get recent message history for context
     const history = await getRecentMessages(convId);
 
-    // 4. Build system prompt with business config
+    // 5. Build system prompt with business config
     const systemPrompt = buildSystemPrompt(client.config);
 
-    // 5. Call Claude API
+    // 6. Call Claude API
     const { cleanText: reply, lead } = await generateReply(systemPrompt, history, message);
 
-    // 6. Save user message and bot reply
+    // 7. Save user message and bot reply
     await saveMessage(convId, 'user', message);
     await saveMessage(convId, 'bot', reply);
 
-    // 7. Save lead if detected
+    // 8. Increment usage counter (fire and forget)
+    incrementUsage(client_id).catch(() => {});
+
+    // 9. Save lead if detected
     let leadDetected = false;
     if (lead) {
       const { isUpdate } = await saveLead(client_id, lead);
       leadDetected = true;
       logger.info('chatController', 'Lead detected and saved', { client_id, convId, isUpdate });
-      sendTelegramAlert(lead, client.config.business_name || client_id, isUpdate).catch(() => {});
+      if (client.plan.telegram_alerts) {
+        sendTelegramAlert(lead, client.config.business_name || client_id, isUpdate).catch(() => {});
+      }
     }
 
     logger.info('chatController', 'Response sent', { client_id, convId, leadDetected });

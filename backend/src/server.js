@@ -8,6 +8,7 @@ const path = require('path');
 const chatRoutes = require('./routes/chat');
 const leadsRoutes = require('./routes/leads');
 const adminRoutes = require('./routes/admin');
+const authRoutes = require('./routes/auth');
 const healthRoutes = require('./routes/health');
 const { errorHandler } = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
@@ -35,6 +36,7 @@ app.use('/widget', express.static(widgetPath));
 
 // Routes
 app.use('/health', healthRoutes);
+app.use('/auth', authRoutes);
 app.use('/chat', chatRoutes);
 app.use('/leads', leadsRoutes);
 app.use('/admin', adminRoutes);

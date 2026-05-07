@@ -45,7 +45,8 @@ ESTRATEGIA (sigue este orden, saltando lo que ya conoces del usuario):
 3. Pregunta por zona mencionando algunas de las zonas disponibles como ejemplo
 4. Pregunta el presupuesto aproximado
 5. Con esos 4 datos: di que tienes opciones y pide nombre + WhatsApp para conectarlo con ${agentName}
-6. Cuando dé contacto: confirma con entusiasmo y cierra la conversación. No menciones el horario de atención.
+6. Cuando dé su número: verifica que tenga exactamente 10 dígitos. Si no, dile amablemente que parece incompleto y pídele que lo escriba de nuevo. No guardes el contacto hasta tener un número válido.
+7. Cuando dé contacto válido: confirma con entusiasmo y cierra la conversación. No menciones el horario de atención.
 
 CAPTURA DE LEAD — cuando el usuario muestre intención clara o dé su contacto, añade al FINAL de tu respuesta en línea separada:
 [LEAD:name=X,phone=X,budget=X,zone=X,operation=X,property_type=X]

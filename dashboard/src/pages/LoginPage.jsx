@@ -7,8 +7,10 @@ export default function LoginPage() {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect to dashboard if session appears (handles OAuth callback race)
   useEffect(() => {
     if (!authLoading && session) {
+      console.log('[Login] Session detected, redirecting to /dashboard');
       navigate('/dashboard', { replace: true });
     }
   }, [session, authLoading, navigate]);
@@ -20,10 +22,7 @@ export default function LoginPage() {
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Show spinner while auth resolves or OAuth hash is being processed
-  if (authLoading || window.location.hash.includes('access_token')) {
-    return <div className="page-loading">Cargando...</div>;
-  }
+  if (authLoading) return <div className="page-loading">Cargando...</div>;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -44,6 +43,7 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setError('');
+    console.log('[Login] Starting Google OAuth, redirectTo:', window.location.origin);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -51,7 +51,8 @@ export default function LoginPage() {
         skipBrowserRedirect: true,
       },
     });
-    if (error) { setError(error.message); return; }
+    if (error) { console.error('[Login] OAuth error:', error); setError(error.message); return; }
+    console.log('[Login] OAuth URL received:', data?.url?.slice(0, 80));
     if (data?.url) window.location.href = data.url;
   }
 

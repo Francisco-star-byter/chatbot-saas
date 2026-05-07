@@ -2,8 +2,15 @@ import { supabase } from './supabase';
 
 const API = import.meta.env.VITE_API_URL;
 
+if (!API) {
+  console.error('[API] VITE_API_URL is missing! API calls will fail.');
+} else {
+  console.log('[API] Backend URL:', API);
+}
+
 async function authHeaders() {
   const { data: { session } } = await supabase.auth.getSession();
+  if (!session) console.warn('[API] No session found when building auth headers!');
   return {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${session?.access_token}`,
@@ -20,10 +27,14 @@ export async function setupAccount(name) {
 }
 
 export async function getMe() {
+  console.log('[API] getMe → ', `${API}/auth/me`);
   const res = await fetch(`${API}/auth/me`, {
     headers: await authHeaders(),
   });
-  if (!res.ok) throw new Error('Unauthorized');
+  if (!res.ok) {
+    console.error('[API] getMe failed with status:', res.status);
+    throw new Error('Unauthorized');
+  }
   return res.json();
 }
 

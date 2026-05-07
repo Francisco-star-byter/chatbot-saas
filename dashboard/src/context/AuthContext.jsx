@@ -7,13 +7,10 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined);
 
   useEffect(() => {
+    console.log('[Auth] Subscribing to auth changes...');
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // INITIAL_SESSION fires before Supabase processes the OAuth hash.
-      // If we get null here but the hash has tokens, stay in loading state
-      // and wait for the SIGNED_IN event that follows.
-      if (event === 'INITIAL_SESSION' && session === null && window.location.hash.includes('access_token')) {
-        return;
-      }
+      console.log('[Auth] Event:', event, '| Session:', session ? '✓ exists' : '✗ null');
       setSession(session);
     });
 

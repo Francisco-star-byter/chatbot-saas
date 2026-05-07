@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
-import { getLeads } from '../lib/api';
+import { getLeads, patchLeadStatus } from '../lib/api';
 
 const STATUS_LABELS = {
   new: 'Nuevo',
   contacted: 'Contactado',
+  qualified: 'Calificado',
   closed: 'Cerrado',
 };
 
 const STATUS_COLORS = {
   new: '#2563eb',
   contacted: '#f59e0b',
+  qualified: '#8b5cf6',
   closed: '#10b981',
 };
 
@@ -25,6 +27,11 @@ export default function LeadsPage() {
     });
   }, []);
 
+  async function handleStatusChange(leadId, newStatus) {
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
+    await patchLeadStatus(leadId, newStatus);
+  }
+
   const filtered = filter === 'all' ? leads : leads.filter(l => l.status === filter);
 
   if (loading) return <div className="page-loading">Cargando leads...</div>;
@@ -34,7 +41,7 @@ export default function LeadsPage() {
       <h1>Leads capturados</h1>
 
       <div className="filter-bar">
-        {['all', 'new', 'contacted', 'closed'].map(f => (
+        {['all', 'new', 'contacted', 'qualified', 'closed'].map(f => (
           <button
             key={f}
             className={`filter-btn ${filter === f ? 'active' : ''}`}
@@ -74,9 +81,16 @@ export default function LeadsPage() {
                   <td>{lead.zone || '—'}</td>
                   <td>{lead.budget || '—'}</td>
                   <td>
-                    <span className="status-badge" style={{ background: STATUS_COLORS[lead.status] || '#94a3b8' }}>
-                      {STATUS_LABELS[lead.status] || lead.status || 'Nuevo'}
-                    </span>
+                    <select
+                      className="status-select"
+                      value={lead.status || 'new'}
+                      style={{ background: STATUS_COLORS[lead.status] || '#94a3b8' }}
+                      onChange={e => handleStatusChange(lead.id, e.target.value)}
+                    >
+                      {Object.entries(STATUS_LABELS).map(([val, label]) => (
+                        <option key={val} value={val}>{label}</option>
+                      ))}
+                    </select>
                   </td>
                   <td>{lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-CO') : '—'}</td>
                 </tr>

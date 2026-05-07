@@ -160,4 +160,39 @@ async function getLeads(req, res, next) {
   }
 }
 
-module.exports = { setupAccount, getMe, updateConfig, getLeads };
+async function patchLeadStatus(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const VALID = ['new', 'contacted', 'qualified', 'closed'];
+    if (!VALID.includes(status)) {
+      return res.status(400).json({ error: `Estado inválido. Debe ser: ${VALID.join(', ')}` });
+    }
+
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    if (!client) return res.status(404).json({ error: 'Account not set up yet' });
+
+    const { data, error } = await supabase
+      .from('leads')
+      .update({ status })
+      .eq('id', id)
+      .eq('client_id', client.id)
+      .select('id, status')
+      .single();
+
+    if (error || !data) return res.status(404).json({ error: 'Lead no encontrado' });
+
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { setupAccount, getMe, updateConfig, getLeads, patchLeadStatus };

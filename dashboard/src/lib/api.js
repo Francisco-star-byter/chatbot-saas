@@ -53,3 +53,12 @@ export async function getLeads() {
   });
   return res.json();
 }
+
+export async function patchLeadStatus(leadId, status) {
+  const res = await fetch(`${API}/auth/leads/${leadId}/status`, {
+    method: 'PATCH',
+    headers: await authHeaders(),
+    body: JSON.stringify({ status }),
+  });
+  return res.json();
+}

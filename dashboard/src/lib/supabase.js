@@ -9,5 +9,8 @@ console.log('[Supabase] URL:', url);
 console.log('[Supabase] Key prefix:', key?.slice(0, 25));
 console.log('[Supabase] Page URL on load:', window.location.href);
 
-// Use default PKCE flow (most compatible with new key format sb_publishable_...)
-export const supabase = createClient(url, key);
+// Implicit flow: Supabase returns tokens in URL hash (#access_token=...)
+// PKCE is not used because skipBrowserRedirect:true skips code_challenge generation
+export const supabase = createClient(url, key, {
+  auth: { flowType: 'implicit' },
+});

@@ -7,10 +7,8 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
+    // onAuthStateChange handles both: initial session from localStorage
+    // AND the OAuth callback hash (fires SIGNED_IN after redirect)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });

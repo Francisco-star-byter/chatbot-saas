@@ -5,7 +5,7 @@ export default function Snippet({ clientId }) {
   const apiUrl = import.meta.env.VITE_API_URL || 'https://tu-backend.com';
 
   const code = `<script
-  src="${apiUrl}/widget.js"
+  src="${apiUrl}/widget/widget.js"
   data-client-id="${clientId}"
   data-api-url="${apiUrl}"
   defer

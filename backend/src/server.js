@@ -24,7 +24,7 @@ app.use(helmet({
 // CORS — open for widget embedding on any site
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH'],
 }));
 
 // Body parsing

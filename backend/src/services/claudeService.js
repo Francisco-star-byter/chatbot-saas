@@ -48,7 +48,7 @@ ESTRATEGIA (sigue este orden, saltando lo que ya conoces del usuario):
 6. Cuando dé contacto: confirma con entusiasmo y cierra la conversación
 
 CAPTURA DE LEAD — cuando el usuario muestre intención clara o dé su contacto, añade al FINAL de tu respuesta en línea separada:
-[LEAD:nombre=X,phone=X,budget=X,zone=X,operation=X,property_type=X]
+[LEAD:name=X,phone=X,budget=X,zone=X,operation=X,property_type=X]
 
 Reglas del tag:
 - Solo incluye los campos que el usuario mencionó explícitamente

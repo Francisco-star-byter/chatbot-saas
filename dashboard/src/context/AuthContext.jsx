@@ -7,9 +7,13 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined);
 
   useEffect(() => {
-    // onAuthStateChange handles both: initial session from localStorage
-    // AND the OAuth callback hash (fires SIGNED_IN after redirect)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // INITIAL_SESSION fires before Supabase processes the OAuth hash.
+      // If we get null here but the hash has tokens, stay in loading state
+      // and wait for the SIGNED_IN event that follows.
+      if (event === 'INITIAL_SESSION' && session === null && window.location.hash.includes('access_token')) {
+        return;
+      }
       setSession(session);
     });
 

@@ -1,13 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
 export default function LoginPage() {
+  const { session, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && session) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [session, authLoading, navigate]);
+
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Show spinner while auth resolves or OAuth hash is being processed
+  if (authLoading || window.location.hash.includes('access_token')) {
+    return <div className="page-loading">Cargando...</div>;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();

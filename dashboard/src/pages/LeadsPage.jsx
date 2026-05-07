@@ -84,7 +84,7 @@ export default function LeadsPage() {
                     <select
                       className="status-select"
                       value={lead.status || 'new'}
-                      style={{ background: STATUS_COLORS[lead.status] || '#94a3b8' }}
+                      style={{ backgroundColor: STATUS_COLORS[lead.status] || '#94a3b8' }}
                       onChange={e => handleStatusChange(lead.id, e.target.value)}
                     >
                       {Object.entries(STATUS_LABELS).map(([val, label]) => (

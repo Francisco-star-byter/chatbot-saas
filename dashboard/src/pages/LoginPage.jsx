@@ -27,10 +27,13 @@ export default function LoginPage() {
   }
 
   async function handleGoogle() {
-    await supabase.auth.signInWithOAuth({
+    setError('');
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
     });
+    console.log('[Google OAuth] data:', data, 'error:', error);
+    if (error) setError(error.message);
   }
 
   return (

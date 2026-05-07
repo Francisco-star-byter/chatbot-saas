@@ -15,6 +15,7 @@
 
   let conversationId = null;
   let isOpen = false;
+  let storedGreeting = null;
 
   // ── Styles ──────────────────────────────────────────────────────────────────
   const css = `
@@ -221,7 +222,7 @@
     box.innerHTML = `
       <div id="cb-header">
         <span class="cb-dot"></span>
-        Asesor Inmobiliario
+        <span id="cb-agent-name">Asesor Inmobiliario</span>
       </div>
       <div id="cb-messages"></div>
       <form id="cb-form" autocomplete="off">
@@ -253,10 +254,25 @@
   }
 
   // ── UI Helpers ───────────────────────────────────────────────────────────────
-  async function fetchGreeting() {
+  async function prefetch() {
     try {
       const res = await fetch(BASE_URL + '/chat/greeting?client_id=' + CLIENT_ID);
       const data = await res.json();
+      storedGreeting = data.greeting || '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
+      const nameEl = document.getElementById('cb-agent-name');
+      if (nameEl && data.agent_name) nameEl.textContent = data.agent_name;
+    } catch (err) {
+      console.error('[ChatBot] prefetch error:', err);
+    }
+  }
+
+  async function fetchGreeting() {
+    if (storedGreeting) return storedGreeting;
+    try {
+      const res = await fetch(BASE_URL + '/chat/greeting?client_id=' + CLIENT_ID);
+      const data = await res.json();
+      const nameEl = document.getElementById('cb-agent-name');
+      if (nameEl && data.agent_name) nameEl.textContent = data.agent_name;
       return data.greeting || '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
     } catch (err) {
       console.error('[ChatBot] fetchGreeting error:', err);
@@ -367,7 +383,11 @@
       removeTyping();
 
       if (!res.ok) {
-        addMessage('bot', 'Hubo un problema. Por favor intenta de nuevo.');
+        if (data.error === 'plan_limit_reached') {
+          addMessage('bot', 'El chat no está disponible por el momento. Por favor contáctenos directamente.');
+        } else {
+          addMessage('bot', 'Hubo un problema. Por favor intenta de nuevo.');
+        }
         console.error('[ChatBot] API error:', data);
       } else {
         conversationId = data.conversation_id;
@@ -387,6 +407,7 @@
   function init() {
     injectStyles();
     buildWidget();
+    prefetch();
     startBubble();
   }
 

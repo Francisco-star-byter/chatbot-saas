@@ -45,7 +45,9 @@ body {
 }
 
 .nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 12px;
   border-radius: 8px;
   text-decoration: none;
@@ -55,6 +57,20 @@ body {
 }
 .nav-link:hover { background: #f1f5f9; color: #1e293b; }
 .nav-link.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+
+.nav-badge {
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
 
 .btn-logout {
   margin: 0 10px;

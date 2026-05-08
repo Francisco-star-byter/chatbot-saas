@@ -1,6 +1,40 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getLeads, patchLeadStatus } from '../lib/api';
 
+function formatBudget(raw) {
+  if (!raw || raw === '—') return '—';
+  const s = String(raw).trim();
+
+  const isMonthly = /mes|mensual/i.test(s);
+  let multiplier = 1;
+  if (/millon|millón|\bM\b/i.test(s)) multiplier = 1_000_000;
+  else if (/\bmil\b|\bK\b/i.test(s)) multiplier = 1_000;
+
+  let numStr = s.replace(/[^\d.,]/g, '');
+  const dots = (numStr.match(/\./g) || []).length;
+  const commas = (numStr.match(/,/g) || []).length;
+
+  if (dots > 1) {
+    numStr = numStr.replace(/\./g, '');
+  } else if (dots === 1 && commas === 0) {
+    const dec = numStr.split('.')[1];
+    if (dec && dec.length === 3) numStr = numStr.replace('.', '');
+  } else if (commas > 1) {
+    numStr = numStr.replace(/,/g, '');
+  } else if (commas === 1 && dots === 0) {
+    numStr = numStr.replace(',', '.');
+  }
+
+  const num = parseFloat(numStr) * multiplier;
+  if (!num || isNaN(num)) return s;
+
+  const sfx = isMonthly ? '/mes' : '';
+  if (num >= 1_000_000_000) return `$${+(num / 1_000_000_000).toFixed(1)} mil millones${sfx}`;
+  if (num >= 1_000_000) return `$${+(num / 1_000_000).toFixed(1)} millones${sfx}`;
+  if (num >= 1_000) return `$${Math.round(num / 1_000)} mil${sfx}`;
+  return `$${num.toLocaleString('es-CO')}${sfx}`;
+}
+
 const STATUS_LABELS = {
   new: 'Nuevo',
   contacted: 'Contactado',
@@ -193,7 +227,7 @@ export default function LeadsPage() {
                   <td><strong>{lead.name || '—'}</strong></td>
                   <td>{lead.phone || '—'}</td>
                   <td>{lead.zone || '—'}</td>
-                  <td>{lead.budget || '—'}</td>
+                  <td>{formatBudget(lead.budget)}</td>
                   <td>{lead.property_interest ? <span className="interest-tag">{lead.property_interest}</span> : '—'}</td>
                   <td>
                     <select

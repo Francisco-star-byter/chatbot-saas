@@ -379,27 +379,29 @@
     msgs.scrollTop = msgs.scrollHeight;
   }
 
-  function addPropertyCards() {
-    if (!properties.length) return;
+  function addPropertyCards(props) {
+    if (!props || !props.length) return;
     var msgs = document.getElementById('cb-messages');
     var wrap = document.createElement('div');
     wrap.className = 'cb-cards-wrap';
     wrap.innerHTML =
-      '<div class="cb-cards-label">Propiedades disponibles</div>' +
+      '<div class="cb-cards-label">Propiedades que te pueden interesar</div>' +
       '<div class="cb-cards-scroll">' +
-      properties.map(function(p) {
+      props.map(function(p) {
         var img = Array.isArray(p.images) && p.images[0]
           ? '<img src="' + esc(p.images[0]) + '" alt="' + esc(p.title) + '" loading="lazy">'
           : '<div class="cb-prop-img-ph">🏠</div>';
         var badge  = p.operation_type === 'sale' ? 'Venta' : 'Arriendo';
         var price  = fmtPrice(p.price, p.operation_type);
         var loc    = [p.zone, p.city].filter(Boolean).join(', ');
+        var specs  = p.bedrooms ? p.bedrooms + ' hab' + (p.area_sqm ? ' · ' + p.area_sqm + 'm²' : '') : '';
         return '<div class="cb-prop-card">' +
           '<div class="cb-prop-img">' + img + '<span class="cb-prop-badge">' + badge + '</span></div>' +
           '<div class="cb-prop-body">' +
             '<p class="cb-prop-title">' + esc(p.title) + '</p>' +
             '<p class="cb-prop-price">' + price + '</p>' +
-            (loc ? '<p class="cb-prop-loc">📍 ' + esc(loc) + '</p>' : '') +
+            (specs ? '<p class="cb-prop-loc">' + specs + '</p>' : '') +
+            (loc   ? '<p class="cb-prop-loc">📍 ' + esc(loc) + '</p>' : '') +
           '</div>' +
         '</div>';
       }).join('') +
@@ -469,7 +471,6 @@
       if (msgs && msgs.children.length === 0) {
         var greeting = cachedGreeting || await fetchGreeting();
         addMsg('bot', greeting);
-        if (properties.length) addPropertyCards();
       }
       setTimeout(function(){ var i = document.getElementById('cb-input'); if(i) i.focus(); }, 220);
     } else {
@@ -535,6 +536,9 @@
       } else {
         conversationId = data.conversation_id;
         addMsg('bot', data.reply);
+        if (data.show_properties && data.show_properties.length) {
+          addPropertyCards(data.show_properties);
+        }
       }
     } catch(err) {
       removeTyping();
@@ -551,7 +555,6 @@
     applyStyles();
     buildWidget();
     fetchGreeting();
-    fetchProperties();
     startBubble();
   }
 

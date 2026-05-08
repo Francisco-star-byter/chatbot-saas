@@ -1,7 +1,7 @@
 const { getClientWithConfig } = require('../services/clientService');
 const { getOrCreateConversation, getRecentMessages, saveMessage } = require('../services/conversationService');
 const { saveLead } = require('../services/leadService');
-const { buildSystemPrompt, generateReply } = require('../services/claudeService');
+const { buildSystemPrompt, generateReply, extractShowTag } = require('../services/claudeService');
 const { checkLimit, incrementUsage } = require('../services/usageService');
 const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
@@ -34,16 +34,32 @@ async function chatController(req, res, next) {
     const systemPrompt = buildSystemPrompt(client.config, client.properties);
 
     // 6. Call Claude API
-    const { cleanText: reply, lead } = await generateReply(systemPrompt, history, message);
+    const { cleanText: rawReply, lead } = await generateReply(systemPrompt, history, message);
 
-    // 7. Save user message and bot reply
+    // 7. Extract [SHOW:N] tag and resolve matching properties
+    const { cleanText: reply, indices } = extractShowTag(rawReply);
+    const showProperties = indices
+      .map(i => client.properties[i])
+      .filter(Boolean)
+      .map(p => ({
+        title: p.title,
+        price: p.price,
+        operation_type: p.operation_type,
+        zone: p.zone,
+        city: p.city,
+        bedrooms: p.bedrooms,
+        area_sqm: p.area_sqm,
+        images: p.images,
+      }));
+
+    // 8. Save user message and bot reply
     await saveMessage(convId, 'user', message);
     await saveMessage(convId, 'bot', reply);
 
-    // 8. Increment usage counter (fire and forget)
+    // 9. Increment usage counter (fire and forget)
     incrementUsage(client_id).catch(() => {});
 
-    // 9. Save lead if detected
+    // 10. Save lead if detected
     let leadDetected = false;
     if (lead) {
       const { isUpdate } = await saveLead(client_id, lead, convId);
@@ -51,12 +67,13 @@ async function chatController(req, res, next) {
       logger.info('chatController', 'Lead detected and saved', { client_id, convId, isUpdate });
     }
 
-    logger.info('chatController', 'Response sent', { client_id, convId, leadDetected });
+    logger.info('chatController', 'Response sent', { client_id, convId, leadDetected, cards: showProperties.length });
 
     res.json({
       reply,
       conversation_id: convId,
       lead_detected: leadDetected,
+      show_properties: showProperties.length ? showProperties : undefined,
     });
 
   } catch (err) {

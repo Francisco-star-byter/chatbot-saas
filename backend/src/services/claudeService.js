@@ -46,7 +46,8 @@ Instrucciones para usar el catálogo:
 • Si el presupuesto, zona o tipo coincide → menciona la propiedad con nombre y detalles clave
 • Si hay coincidencia parcial → menciónala igual y explica qué se ajusta
 • Si no hay coincidencia → di que buscarás opciones y pide el contacto para avisarle
-• Las marcadas con ⭐ son propiedades destacadas — priorízalas si hay empate`;
+• Las marcadas con ⭐ son propiedades destacadas — priorízalas si hay empate
+• Cuando menciones una o más propiedades específicas del catálogo, añade al FINAL de tu respuesta (línea separada): [SHOW:N] donde N es el número de la propiedad. Máximo 3: [SHOW:1,2,3]`;
 }
 
 // ── Build system prompt ──────────────────────────────────────────────────────
@@ -124,6 +125,18 @@ Reglas del tag:
 - No usar valores de ejemplo ni null / undefined / VALOR`;
 }
 
+// ── Parse [SHOW:N] tag — which catalog properties to display as cards ────────
+
+function extractShowTag(text) {
+  const match = text.match(/\[SHOW:([\d,\s]+)\]/);
+  if (!match) return { cleanText: text, indices: [] };
+  const indices = match[1].split(',')
+    .map(s => parseInt(s.trim(), 10) - 1)
+    .filter(n => !isNaN(n) && n >= 0);
+  const cleanText = text.replace(/\[SHOW:[\d,\s]+\]/, '').trim();
+  return { cleanText, indices };
+}
+
 // ── Parse lead tag from Claude response ──────────────────────────────────────
 
 function extractLeadTag(text) {
@@ -191,4 +204,4 @@ async function generateReply(systemPrompt, history, userMessage) {
   return extractLeadTag(rawText);
 }
 
-module.exports = { buildSystemPrompt, generateReply };
+module.exports = { buildSystemPrompt, generateReply, extractShowTag };

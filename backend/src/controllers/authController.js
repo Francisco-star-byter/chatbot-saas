@@ -195,4 +195,34 @@ async function patchLeadStatus(req, res, next) {
   }
 }
 
-module.exports = { setupAccount, getMe, updateConfig, getLeads, patchLeadStatus };
+async function patchLeadNotes(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { notes } = req.body;
+
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    if (!client) return res.status(404).json({ error: 'Account not set up yet' });
+
+    const { data, error } = await supabase
+      .from('leads')
+      .update({ notes })
+      .eq('id', id)
+      .eq('client_id', client.id)
+      .select('id, notes')
+      .single();
+
+    if (error || !data) return res.status(404).json({ error: 'Lead no encontrado' });
+
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { setupAccount, getMe, updateConfig, getLeads, patchLeadStatus, patchLeadNotes };

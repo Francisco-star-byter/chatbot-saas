@@ -1,7 +1,7 @@
 const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
 
-async function saveLead(clientId, leadData) {
+async function saveLead(clientId, leadData, conversationId = null) {
   const { name, phone, budget, zone, operation, property_type, score, interest } = leadData;
 
   if (phone) {
@@ -34,14 +34,15 @@ async function saveLead(clientId, leadData) {
     .from('leads')
     .insert({
       client_id:         clientId,
-      name:              name          || null,
-      phone:             phone         || null,
-      budget:            budget        || null,
-      zone:              zone          || null,
-      operation:         operation     || null,
-      property_type:     property_type || null,
-      lead_score:        score         || null,
-      property_interest: interest      || null,
+      name:              name             || null,
+      phone:             phone            || null,
+      budget:            budget           || null,
+      zone:              zone             || null,
+      operation:         operation        || null,
+      property_type:     property_type    || null,
+      lead_score:        score            || null,
+      property_interest: interest         || null,
+      conversation_id:   conversationId   || null,
       status: 'new',
     })
     .select('id')

@@ -45,7 +45,7 @@ async function chatController(req, res, next) {
     // 9. Save lead if detected
     let leadDetected = false;
     if (lead) {
-      const { isUpdate } = await saveLead(client_id, lead);
+      const { isUpdate } = await saveLead(client_id, lead, convId);
       leadDetected = true;
       logger.info('chatController', 'Lead detected and saved', { client_id, convId, isUpdate });
     }

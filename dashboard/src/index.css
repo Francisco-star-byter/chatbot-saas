@@ -259,6 +259,47 @@ body {
 .config-section { margin-bottom: 28px; }
 .config-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
 
+/* ── Conversations ── */
+.conversations-layout { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 130px); background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+.conv-list { border-right: 1px solid #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; }
+.conv-item { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background .12s; }
+.conv-item:hover { background: #f8fafc; }
+.conv-item.active { background: #eff6ff; border-left: 3px solid #2563eb; }
+.conv-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+.conv-item-name { font-size: 13px; font-weight: 600; color: #0f172a; }
+.conv-item-date { font-size: 11px; color: #94a3b8; }
+.conv-item-preview { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
+.conv-item-meta { display: flex; align-items: center; gap: 8px; }
+.conv-count { font-size: 11px; color: #94a3b8; }
+.conv-thread { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.conv-thread-header { padding: 14px 20px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; flex-shrink: 0; }
+.conv-thread-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.conv-empty { display: flex; align-items: center; justify-content: center; flex: 1; }
+.message-row { display: flex; }
+.message-row.bot  { justify-content: flex-start; }
+.message-row.user { justify-content: flex-end; }
+.message-bubble { max-width: 72%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.55; }
+.message-bubble.bot  { background: #f1f5f9; color: #334155; border-bottom-left-radius: 4px; }
+.message-bubble.user { background: #2563eb; color: #fff; border-bottom-right-radius: 4px; }
+.message-time { font-size: 10px; margin-top: 4px; opacity: .6; text-align: right; }
+
+/* ── Kanban ── */
+.kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: start; }
+.kanban-col { background: #f8fafc; border-radius: 12px; padding: 12px; }
+.kanban-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.kanban-col-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.kanban-count-badge { background: #e2e8f0; color: #64748b; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.kanban-cards { display: flex; flex-direction: column; gap: 8px; min-height: 48px; }
+.kanban-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; cursor: pointer; transition: box-shadow .15s, transform .15s; }
+.kanban-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); transform: translateY(-1px); }
+.kanban-card-name { font-size: 13px; font-weight: 600; color: #0f172a; margin: 5px 0 6px; }
+.kanban-card-detail { font-size: 11px; color: #94a3b8; margin: 2px 0; }
+.kanban-card-interest { font-size: 11px; color: #2563eb; background: #eff6ff; padding: 2px 7px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+
+/* ── Lead notes ── */
+.lead-notes { width: 100%; padding: 9px 11px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; outline: none; }
+.lead-notes:focus { border-color: #2563eb; }
+
 /* ── Property grid ── */
 .property-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
@@ -319,4 +360,11 @@ body {
   .page-header { flex-wrap: wrap; gap: 10px; }
   .property-grid { grid-template-columns: 1fr; }
   .img-grid { grid-template-columns: repeat(3, 1fr); }
+  .kanban-board { grid-template-columns: 1fr 1fr; }
+  .conversations-layout { grid-template-columns: 1fr; height: auto; }
+  .conv-thread { min-height: 400px; }
+}
+
+@media (max-width: 600px) {
+  .kanban-board { grid-template-columns: 1fr; }
 }

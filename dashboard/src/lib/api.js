@@ -63,6 +63,31 @@ export async function patchLeadStatus(leadId, status) {
   return res.json();
 }
 
+export async function patchLeadNotes(leadId, notes) {
+  const res = await fetch(`${API}/auth/leads/${leadId}/notes`, {
+    method: 'PATCH',
+    headers: await authHeaders(),
+    body: JSON.stringify({ notes }),
+  });
+  return res.json();
+}
+
+// ── Conversations ──
+
+export async function getConversations() {
+  const res = await fetch(`${API}/conversations`, {
+    headers: await authHeaders(),
+  });
+  return res.json();
+}
+
+export async function getConversationDetail(id) {
+  const res = await fetch(`${API}/conversations/${id}`, {
+    headers: await authHeaders(),
+  });
+  return res.json();
+}
+
 // ── Properties ──
 
 export async function getProperties(params = {}) {

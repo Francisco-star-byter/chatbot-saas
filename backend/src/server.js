@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
 const healthRoutes = require('./routes/health');
 const propertiesRoutes = require('./routes/properties');
+const conversationsRoutes = require('./routes/conversations');
 const { errorHandler } = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
 
@@ -42,6 +43,7 @@ app.use('/chat', chatRoutes);
 app.use('/leads', leadsRoutes);
 app.use('/admin', adminRoutes);
 app.use('/properties', propertiesRoutes);
+app.use('/conversations', conversationsRoutes);
 
 // 404
 app.use((req, res) => {

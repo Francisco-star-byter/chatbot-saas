@@ -16,7 +16,7 @@ async function getClientWithConfig(clientId) {
   const [{ data: config }, { data: plan }, { data: properties }] = await Promise.all([
     supabase
       .from('business_config')
-      .select('tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours')
+      .select('tone, zones, services, custom_prompt, business_name, location, agent_name, price_range, working_hours, whatsapp_number, widget_color, widget_position')
       .eq('client_id', clientId)
       .single(),
     supabase

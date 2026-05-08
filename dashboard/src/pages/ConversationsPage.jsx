@@ -54,6 +54,7 @@ export default function ConversationsPage() {
   const [detail, setDetail]               = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [search, setSearch]               = useState('');
+  const [mobileView, setMobileView]       = useState('list');
 
   useEffect(() => {
     getConversations().then(data => {
@@ -65,6 +66,7 @@ export default function ConversationsPage() {
   async function selectConversation(conv) {
     setSelected(conv.id);
     setLoadingDetail(true);
+    setMobileView('thread');
     const data = await getConversationDetail(conv.id);
     setDetail(data);
     setLoadingDetail(false);
@@ -88,7 +90,7 @@ export default function ConversationsPage() {
         <h1>Conversaciones <span style={{ fontSize: 14, fontWeight: 400, color: '#94a3b8' }}>({conversations.length})</span></h1>
       </div>
 
-      <div className="conversations-layout">
+      <div className={`conversations-layout ${mobileView === 'thread' ? 'mobile-thread' : 'mobile-list'}`}>
 
         {/* ── Lista ── */}
         <aside className="conv-list">
@@ -151,6 +153,7 @@ export default function ConversationsPage() {
             <>
               <div className="conv-thread-header">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <button className="conv-back-btn" onClick={() => setMobileView('list')}>← Volver</button>
                   <div>
                     <strong style={{ fontSize: 14 }}>
                       {detail.lead?.name || 'Visitante anónimo'}

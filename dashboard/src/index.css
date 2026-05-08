@@ -409,6 +409,14 @@ body {
 .pipeline-legend-count { font-size: 14px; font-weight: 700; margin: 2px 0 0; }
 .pipeline-legend-pct { font-size: 12px; color: #94a3b8; font-weight: 400; }
 
+/* ── Conversations mobile back button ── */
+.conv-back-btn {
+  display: none;
+  background: none; border: none; color: #2563eb;
+  font-size: 13px; font-weight: 600; cursor: pointer; padding: 0;
+  margin-right: 10px; flex-shrink: 0;
+}
+
 /* ── Mobile header ── */
 .mobile-header {
   display: none;
@@ -438,64 +446,110 @@ body {
 }
 
 @media (max-width: 768px) {
-  /* Show mobile header */
+  /* ── Navigation ── */
   .mobile-header { display: flex; }
   .sidebar-overlay { display: block; }
-
-  /* Sidebar becomes a drawer */
   .sidebar {
     transform: translateX(-100%);
     transition: transform .25s cubic-bezier(.4,0,.2,1);
-    z-index: 1100; top: 0;
-    box-shadow: none;
+    z-index: 1100; top: 0; box-shadow: none;
   }
   .sidebar.sidebar-open {
     transform: translateX(0);
     box-shadow: 4px 0 24px rgba(0,0,0,.15);
   }
+  .main-content { margin-left: 0; padding: 72px 16px 32px; }
 
-  /* Main content adjusts for top header */
-  .main-content { margin-left: 0; padding: 80px 16px 24px; }
+  /* ── Pages ── */
+  .page, .analytics-page { max-width: 100%; }
+  .page h1 { font-size: 20px; margin-bottom: 16px; }
+  .page-header { flex-wrap: wrap; gap: 10px; }
+  .page-header h1 { font-size: 20px; }
 
-  /* Grids */
-  .cards-row { grid-template-columns: 1fr 1fr; }
+  /* ── Grids ── */
+  .cards-row { grid-template-columns: 1fr 1fr; gap: 12px; }
   .analytics-kpis { grid-template-columns: 1fr 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .analytics-two-col { grid-template-columns: 1fr; }
-  .score-cards { grid-template-columns: 1fr; }
-  .pipeline-legend { grid-template-columns: 1fr; }
+  .score-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pipeline-legend { grid-template-columns: 1fr 1fr; }
   .hour-bands { grid-template-columns: repeat(2, 1fr); }
   .property-grid { grid-template-columns: 1fr 1fr; }
-  .kanban-board { grid-template-columns: 1fr 1fr; }
   .img-grid { grid-template-columns: repeat(3, 1fr); }
 
-  /* Layout fixes */
-  .search-input { width: 100%; }
-  .leads-toolbar { flex-direction: column; align-items: stretch; }
-  .page-header { flex-wrap: wrap; gap: 10px; }
-  .conversations-layout { grid-template-columns: 1fr; height: auto; }
-  .conv-thread { min-height: 400px; }
-  .horiz-label { width: 100px; }
+  /* ── Kanban: horizontal scroll instead of stacking ── */
+  .kanban-board {
+    grid-template-columns: repeat(4, 260px);
+    overflow-x: auto;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
 
-  /* Page */
-  .page h1 { font-size: 20px; }
-  .page { max-width: 100%; }
-  .analytics-page { max-width: 100%; }
-  .modal { margin: 0; border-radius: 16px 16px 0 0; }
+  /* ── Leads ── */
+  .leads-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+  .filter-bar { flex-wrap: wrap; }
+  .search-input { width: 100%; }
+  .table-wrap { border-radius: 8px; }
+  .leads-table { font-size: 12px; }
+  .leads-table th, .leads-table td { padding: 10px 10px; white-space: nowrap; }
+
+  /* ── Conversations: show only list OR thread on mobile ── */
+  .conversations-layout {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 130px);
+  }
+  .conversations-layout .conv-list { display: flex; }
+  .conversations-layout .conv-thread { display: none; }
+  .conversations-layout.mobile-thread .conv-list { display: none; }
+  .conversations-layout.mobile-thread .conv-thread { display: flex; min-height: 0; }
+  .conv-back-btn { display: inline-block; }
+
+  /* ── Config ── */
+  .config-form { padding: 16px; }
+  .config-section { margin-bottom: 20px; }
+
+  /* ── Modal: bottom sheet ── */
   .modal-overlay { align-items: flex-end; padding: 0; }
-  .modal-body { max-height: 60vh; }
+  .modal { margin: 0; border-radius: 16px 16px 0 0; max-width: 100%; }
+  .modal-body { max-height: 65vh; }
+
+  /* ── Charts ── */
+  .horiz-label { width: 90px; }
+  .horiz-pct { display: none; }
+
+  /* ── Misc ── */
+  .snippet-code { font-size: 11px; }
+  .auth-card { padding: 28px 20px; margin: 0 12px; }
+  .onboarding-card { padding: 28px 20px; margin: 0 12px; }
 }
 
 @media (max-width: 480px) {
-  .main-content { padding: 72px 12px 20px; }
-  .cards-row { grid-template-columns: 1fr; }
+  .main-content { padding: 68px 12px 28px; }
+
+  /* Single column everything */
+  .cards-row { grid-template-columns: 1fr; gap: 10px; }
   .analytics-kpis { grid-template-columns: 1fr 1fr; }
   .property-grid { grid-template-columns: 1fr; }
-  .kanban-board { grid-template-columns: 1fr; }
-  .score-card { flex-direction: column; gap: 8px; }
-  .score-value { font-size: 24px; }
-  .config-form { padding: 16px; }
-  .snippet-code { font-size: 11px; }
-  .table-wrap { font-size: 12px; }
-  .leads-table th, .leads-table td { padding: 10px 10px; }
+  .score-cards { grid-template-columns: 1fr; }
+  .pipeline-legend { grid-template-columns: 1fr; }
+
+  /* Smaller text and padding */
+  .card { padding: 14px; }
+  .card-value { font-size: 20px; }
+  .score-value { font-size: 26px; }
+  .score-card { padding: 12px 14px; }
+  .config-form { padding: 12px; }
+  .analytics-card { padding: 14px; }
+  .page h1 { font-size: 18px; }
+
+  /* Pipeline card min-width for scroll */
+  .kanban-board { grid-template-columns: repeat(4, 220px); }
+  .kanban-col { min-width: 220px; }
+
+  /* Properties */
+  .property-img { height: 140px; }
+
+  /* Auth */
+  .auth-card { padding: 24px 16px; }
+  .auth-card h2 { font-size: 18px; }
 }

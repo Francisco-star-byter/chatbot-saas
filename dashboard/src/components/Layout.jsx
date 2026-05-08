@@ -5,8 +5,9 @@ import { getLeads } from '../lib/api';
 
 const NAV = [
   { to: '/dashboard', label: '🏠 Panel' },
-  { to: '/dashboard/config', label: '⚙️ Configuración' },
+  { to: '/dashboard/properties', label: '🏢 Propiedades' },
   { to: '/dashboard/leads', label: '📋 Leads' },
+  { to: '/dashboard/config', label: '⚙️ Configuración' },
 ];
 
 const POLL_INTERVAL = 30000;

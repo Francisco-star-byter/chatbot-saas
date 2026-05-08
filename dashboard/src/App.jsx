@@ -7,6 +7,7 @@ import OnboardingPage from './pages/OnboardingPage';
 import DashboardPage from './pages/DashboardPage';
 import ConfigPage from './pages/ConfigPage';
 import LeadsPage from './pages/LeadsPage';
+import PropertiesPage from './pages/PropertiesPage';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
             <ProtectedRoute><Layout /></ProtectedRoute>
           }>
             <Route index element={<DashboardPage />} />
+            <Route path="properties" element={<PropertiesPage />} />
             <Route path="config" element={<ConfigPage />} />
             <Route path="leads" element={<LeadsPage />} />
           </Route>

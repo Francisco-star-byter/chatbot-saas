@@ -62,3 +62,56 @@ export async function patchLeadStatus(leadId, status) {
   });
   return res.json();
 }
+
+// ── Properties ──
+
+export async function getProperties(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(`${API}/properties${qs ? `?${qs}` : ''}`, {
+    headers: await authHeaders(),
+  });
+  return res.json();
+}
+
+export async function createProperty(data) {
+  const res = await fetch(`${API}/properties`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+export async function updateProperty(id, data) {
+  const res = await fetch(`${API}/properties/${id}`, {
+    method: 'PUT',
+    headers: await authHeaders(),
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+export async function deleteProperty(id) {
+  const res = await fetch(`${API}/properties/${id}`, {
+    method: 'DELETE',
+    headers: await authHeaders(),
+  });
+  return res.json();
+}
+
+export async function uploadPropertyImage(file) {
+  const ext = file.name.split('.').pop();
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from('property-images')
+    .upload(filename, file, { cacheControl: '3600', upsert: false });
+
+  if (error) throw new Error(error.message);
+
+  const { data } = supabase.storage
+    .from('property-images')
+    .getPublicUrl(filename);
+
+  return data.publicUrl;
+}

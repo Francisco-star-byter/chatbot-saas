@@ -45,54 +45,114 @@ export default function ConfigPage() {
   return (
     <div className="page">
       <h1>Configuración del bot</h1>
-      <form className="config-form" onSubmit={handleSave}>
-        <div className="form-grid">
-          <div className="form-group">
-            <label>Nombre del negocio</label>
-            <input value={form.business_name || ''} onChange={e => set('business_name', e.target.value)} placeholder="Inmobiliaria Horizonte" />
-          </div>
-          <div className="form-group">
-            <label>Ciudad / Ubicación</label>
-            <input value={form.location || ''} onChange={e => set('location', e.target.value)} placeholder="Bogotá" />
-          </div>
-          <div className="form-group">
-            <label>Nombre del agente virtual</label>
-            <input value={form.agent_name || ''} onChange={e => set('agent_name', e.target.value)} placeholder="Sofia" />
-          </div>
-          <div className="form-group">
-            <label>Tono</label>
-            <select value={form.tone || 'profesional'} onChange={e => set('tone', e.target.value)}>
-              {TONE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Rango de precios</label>
-            <input value={form.price_range || ''} onChange={e => set('price_range', e.target.value)} placeholder="desde $150M hasta $800M" />
-          </div>
-          <div className="form-group">
-            <label>Horario de atención</label>
-            <input value={form.working_hours || ''} onChange={e => set('working_hours', e.target.value)} placeholder="Lunes a viernes 8am-6pm" />
+      <form onSubmit={handleSave}>
+
+        <div className="config-section">
+          <div className="config-section-title">Identidad del negocio</div>
+          <div className="config-form">
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Nombre del negocio</label>
+                <input
+                  value={form.business_name || ''}
+                  onChange={e => set('business_name', e.target.value)}
+                  placeholder="Inmobiliaria Horizonte"
+                />
+              </div>
+              <div className="form-group">
+                <label>Ciudad / Ubicación</label>
+                <input
+                  value={form.location || ''}
+                  onChange={e => set('location', e.target.value)}
+                  placeholder="Bogotá"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Zonas (separadas por coma)</label>
-          <input value={form.zones || ''} onChange={e => set('zones', e.target.value)} placeholder="Chapinero, Usaquén, Suba" />
-        </div>
-        <div className="form-group">
-          <label>Servicios (separados por coma)</label>
-          <input value={form.services || ''} onChange={e => set('services', e.target.value)} placeholder="Venta de apartamentos, Arriendo de casas" />
-        </div>
-        <div className="form-group">
-          <label>Instrucciones adicionales</label>
-          <textarea rows={4} value={form.custom_prompt || ''} onChange={e => set('custom_prompt', e.target.value)} placeholder="Instrucciones especiales para el asistente..." />
+        <div className="config-section">
+          <div className="config-section-title">Personalidad del agente</div>
+          <div className="config-form">
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Nombre del agente virtual</label>
+                <input
+                  value={form.agent_name || ''}
+                  onChange={e => set('agent_name', e.target.value)}
+                  placeholder="Sofia"
+                />
+                <p className="hint">Este nombre aparece en el widget de chat.</p>
+              </div>
+              <div className="form-group">
+                <label>Tono de conversación</label>
+                <select value={form.tone || 'profesional'} onChange={e => set('tone', e.target.value)}>
+                  {TONE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <p className="hint">Define cómo se comunica el agente con los visitantes.</p>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Instrucciones adicionales</label>
+              <textarea
+                rows={4}
+                value={form.custom_prompt || ''}
+                onChange={e => set('custom_prompt', e.target.value)}
+                placeholder="Ej: siempre menciona que tenemos financiación propia, no ofrezcas propiedades fuera de Bogotá..."
+              />
+              <p className="hint">Instrucciones específicas que el agente seguirá en cada conversación.</p>
+            </div>
+          </div>
         </div>
 
-        <div className="form-actions">
+        <div className="config-section">
+          <div className="config-section-title">Oferta y cobertura</div>
+          <div className="config-form">
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Rango de precios</label>
+                <input
+                  value={form.price_range || ''}
+                  onChange={e => set('price_range', e.target.value)}
+                  placeholder="desde $150M hasta $800M"
+                />
+                <p className="hint">El agente usará esto para orientar a los interesados.</p>
+              </div>
+              <div className="form-group">
+                <label>Horario de atención</label>
+                <input
+                  value={form.working_hours || ''}
+                  onChange={e => set('working_hours', e.target.value)}
+                  placeholder="Lunes a viernes 8am-6pm"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Zonas que manejan</label>
+              <input
+                value={form.zones || ''}
+                onChange={e => set('zones', e.target.value)}
+                placeholder="Chapinero, Usaquén, Suba"
+              />
+              <p className="hint">Separa cada zona con una coma.</p>
+            </div>
+            <div className="form-group">
+              <label>Servicios que ofrecen</label>
+              <input
+                value={form.services || ''}
+                onChange={e => set('services', e.target.value)}
+                placeholder="Venta de apartamentos, Arriendo de casas"
+              />
+              <p className="hint">Separa cada servicio con una coma.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-actions" style={{ marginTop: 0 }}>
           <button className="btn btn-primary" type="submit" disabled={saving}>
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
-          {saved && <span className="saved-badge">✓ Guardado</span>}
+          {saved && <span className="saved-badge">✓ Guardado correctamente</span>}
         </div>
       </form>
     </div>

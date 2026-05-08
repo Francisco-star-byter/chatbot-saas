@@ -5,7 +5,37 @@ const MODEL = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 280;
 const MAX_HISTORY_MESSAGES = 10;
 
-function buildSystemPrompt(clientConfig) {
+function formatPropertiesForAI(properties) {
+  if (!properties || properties.length === 0) return '';
+
+  const list = properties.slice(0, 12).map((p, i) => {
+    const op = p.operation_type === 'sale' ? 'Venta' : 'Arriendo';
+    const price = p.price
+      ? `$${Number(p.price).toLocaleString('es-CO')}${p.operation_type === 'rent' ? '/mes' : ''}`
+      : 'Precio a consultar';
+    const specs = [
+      p.bedrooms && `${p.bedrooms} hab`,
+      p.bathrooms && `${p.bathrooms} baños`,
+      p.area_sqm && `${p.area_sqm}m²`,
+      p.estrato && `Estrato ${p.estrato}`,
+    ].filter(Boolean).join(' · ');
+    const desc = p.ai_description || p.description || '';
+    const location = [p.zone, p.city].filter(Boolean).join(', ');
+    const amenities = Array.isArray(p.amenities) && p.amenities.length
+      ? `Incluye: ${p.amenities.slice(0, 4).join(', ')}`
+      : '';
+
+    return `${i + 1}. [${op}] ${p.title} — ${price}
+   ${location ? `📍 ${location}` : ''}${specs ? ` | ${specs}` : ''}${amenities ? `\n   ${amenities}` : ''}${desc ? `\n   "${desc}"` : ''}`;
+  }).join('\n\n');
+
+  return `\n\nPROPIEDADES DISPONIBLES EN EL CATÁLOGO:
+${list}
+
+Cuando el presupuesto, zona o tipo de propiedad del usuario coincida con alguna del catálogo, menciónala con entusiasmo y sus detalles clave. Si preguntan por algo específico, busca la mejor coincidencia en el catálogo.`;
+}
+
+function buildSystemPrompt(clientConfig, properties = []) {
   const zones = Array.isArray(clientConfig.zones)
     ? clientConfig.zones.join(', ')
     : clientConfig.zones || 'varias zonas';
@@ -21,7 +51,7 @@ function buildSystemPrompt(clientConfig) {
   const hours = clientConfig.working_hours ? `- Horario de atención: ${clientConfig.working_hours}` : '';
   const extra = clientConfig.custom_prompt ? `- Contexto adicional: ${clientConfig.custom_prompt}` : '';
 
-  return `Eres el asistente virtual de ${businessName}${location}. Tu objetivo es entender qué busca el visitante y conectarlo con ${agentName} cuando esté listo.
+  return `Eres ${agentName}, el asistente virtual de ${businessName}${location}. Tu objetivo es entender qué busca el visitante, recomendar propiedades del catálogo cuando coincidan, y conectarlo con un asesor cuando esté listo.
 
 NEGOCIO:
 - Servicios: ${services}
@@ -57,7 +87,7 @@ Reglas del tag:
 - property_type: usar "apartamento" o "casa" según lo que dijo
 - Omite los campos que no mencionó
 - No uses valores de ejemplo ni texto literal como VALOR, null o undefined
-- No incluyas el tag si no hay datos reales del usuario`;
+- No incluyas el tag si no hay datos reales del usuario${formatPropertiesForAI(properties)}`;
 }
 
 function extractLeadTag(text) {

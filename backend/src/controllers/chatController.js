@@ -29,8 +29,8 @@ async function chatController(req, res, next) {
     // 4. Get recent message history for context
     const history = await getRecentMessages(convId);
 
-    // 5. Build system prompt with business config
-    const systemPrompt = buildSystemPrompt(client.config);
+    // 5. Build system prompt with business config + available properties
+    const systemPrompt = buildSystemPrompt(client.config, client.properties);
 
     // 6. Call Claude API
     const { cleanText: reply, lead } = await generateReply(systemPrompt, history, message);

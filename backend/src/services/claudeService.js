@@ -2,125 +2,159 @@ const anthropic = require('../config/claude');
 const logger = require('../utils/logger');
 
 const MODEL = 'claude-haiku-4-5-20251001';
-const MAX_TOKENS = 280;
-const MAX_HISTORY_MESSAGES = 10;
+const MAX_TOKENS = 420;
+const MAX_HISTORY_MESSAGES = 12;
+
+// ── Format properties for AI context ────────────────────────────────────────
 
 function formatPropertiesForAI(properties) {
   if (!properties || properties.length === 0) return '';
 
   const list = properties.slice(0, 12).map((p, i) => {
-    const op = p.operation_type === 'sale' ? 'Venta' : 'Arriendo';
+    const op    = p.operation_type === 'sale' ? 'Venta' : 'Arriendo';
     const price = p.price
       ? `$${Number(p.price).toLocaleString('es-CO')}${p.operation_type === 'rent' ? '/mes' : ''}`
       : 'Precio a consultar';
-    const specs = [
-      p.bedrooms && `${p.bedrooms} hab`,
-      p.bathrooms && `${p.bathrooms} baños`,
-      p.area_sqm && `${p.area_sqm}m²`,
-      p.estrato && `Estrato ${p.estrato}`,
-    ].filter(Boolean).join(' · ');
-    const desc = p.ai_description || p.description || '';
-    const location = [p.zone, p.city].filter(Boolean).join(', ');
-    const amenities = Array.isArray(p.amenities) && p.amenities.length
-      ? `Incluye: ${p.amenities.slice(0, 4).join(', ')}`
-      : '';
 
-    return `${i + 1}. [${op}] ${p.title} — ${price}
-   ${location ? `📍 ${location}` : ''}${specs ? ` | ${specs}` : ''}${amenities ? `\n   ${amenities}` : ''}${desc ? `\n   "${desc}"` : ''}`;
+    const specs = [
+      p.bedrooms  && `${p.bedrooms} hab`,
+      p.bathrooms && `${p.bathrooms} baños`,
+      p.area_sqm  && `${p.area_sqm}m²`,
+      p.estrato   && `Est.${p.estrato}`,
+    ].filter(Boolean).join(' · ');
+
+    const location  = [p.zone, p.city].filter(Boolean).join(', ');
+    const amenities = Array.isArray(p.amenities) && p.amenities.length
+      ? `Amenidades: ${p.amenities.slice(0, 4).join(', ')}`
+      : '';
+    const desc = p.ai_description || p.description || '';
+    const featured = p.featured ? ' ⭐' : '';
+
+    return [
+      `${i + 1}.${featured} [${op}] ${p.title} — ${price}`,
+      location && `   📍 ${location}${specs ? ` | ${specs}` : ''}`,
+      amenities && `   ${amenities}`,
+      desc      && `   "${desc}"`,
+    ].filter(Boolean).join('\n');
   }).join('\n\n');
 
-  return `\n\nPROPIEDADES DISPONIBLES EN EL CATÁLOGO:
+  return `\n\n━━━ CATÁLOGO DE PROPIEDADES DISPONIBLES ━━━
 ${list}
+━━━ FIN DEL CATÁLOGO ━━━
 
-Cuando el presupuesto, zona o tipo de propiedad del usuario coincida con alguna del catálogo, menciónala con entusiasmo y sus detalles clave. Si preguntan por algo específico, busca la mejor coincidencia en el catálogo.`;
+Instrucciones para usar el catálogo:
+• Si el presupuesto, zona o tipo coincide → menciona la propiedad con nombre y detalles clave
+• Si hay coincidencia parcial → menciónala igual y explica qué se ajusta
+• Si no hay coincidencia → di que buscarás opciones y pide el contacto para avisarle
+• Las marcadas con ⭐ son propiedades destacadas — priorízalas si hay empate`;
 }
+
+// ── Build system prompt ──────────────────────────────────────────────────────
 
 function buildSystemPrompt(clientConfig, properties = []) {
-  const zones = Array.isArray(clientConfig.zones)
-    ? clientConfig.zones.join(', ')
-    : clientConfig.zones || 'varias zonas';
-
-  const services = Array.isArray(clientConfig.services)
-    ? clientConfig.services.join(' y ')
-    : clientConfig.services || 'venta y arriendo';
-
   const businessName = clientConfig.business_name || 'nuestra inmobiliaria';
-  const location = clientConfig.location ? `, especialistas en propiedades en ${clientConfig.location}` : '';
-  const priceRange = clientConfig.price_range ? `- Rango de precios: ${clientConfig.price_range}` : '';
-  const agentName = clientConfig.agent_name || 'un asesor';
-  const hours = clientConfig.working_hours ? `- Horario de atención: ${clientConfig.working_hours}` : '';
-  const extra = clientConfig.custom_prompt ? `- Contexto adicional: ${clientConfig.custom_prompt}` : '';
+  const agentName    = clientConfig.agent_name    || 'Asesor';
+  const city         = clientConfig.location      || 'nuestra ciudad';
+  const locationLine = clientConfig.location ? `, expertos en propiedades en ${city}` : '';
 
-  return `Eres ${agentName}, el asistente virtual de ${businessName}${location}. Tu objetivo es entender qué busca el visitante, recomendar propiedades del catálogo cuando coincidan, y conectarlo con un asesor cuando esté listo.
+  const zones    = Array.isArray(clientConfig.zones)    ? clientConfig.zones.join(', ')    : clientConfig.zones    || 'varias zonas';
+  const services = Array.isArray(clientConfig.services) ? clientConfig.services.join(' y ') : clientConfig.services || 'venta y arriendo';
 
-NEGOCIO:
+  const priceRange = clientConfig.price_range   ? `- Rango de precios manejado: ${clientConfig.price_range}` : '';
+  const extra      = clientConfig.custom_prompt ? `- Contexto adicional: ${clientConfig.custom_prompt}`       : '';
+
+  return `Eres ${agentName}, asesor inmobiliario virtual de ${businessName}${locationLine}. Combinas calidez humana con expertise inmobiliaria real para ayudar a cada visitante a encontrar su propiedad ideal y conectarlos con el equipo.
+
+━━━ NEGOCIO ━━━
 - Servicios: ${services}
-- Ciudad: ${clientConfig.location || 'nuestra ciudad'}
+- Ciudad principal: ${city}
 - Zonas disponibles: ${zones}
 ${priceRange}
-${hours}
 ${extra}
 
-CÓMO RESPONDER:
-- Máximo 2 frases por mensaje + una sola pregunta al final
-- Tono: cálido y directo, como un amigo experto en finca raíz
-- Nunca repitas algo que el usuario ya respondió
-- Si el tema no es inmobiliario, redirige con naturalidad
-- Responde siempre en español
-- Desde el primer mensaje menciona la ciudad donde operamos para que el usuario sepa dónde estamos
+━━━ CONOCIMIENTO DEL MERCADO COLOMBIANO ━━━
+- Estratos: 1-2 (popular/económico) · 3-4 (medio) · 5-6 (alto/premium)
+- Canon de arriendo puede incluir o no la administración — siempre aclara
+- Crédito hipotecario: cuota inicial mínima ~30%, plazo hasta 30 años
+- VIS: Vivienda de Interés Social (precio regulado por el gobierno)
+- Leasing habitacional: alternativa al crédito hipotecario
+- Valorización: zonas con desarrollo de infraestructura tienden a valorizarse más
 
-ESTRATEGIA (sigue este orden, saltando lo que ya conoces del usuario):
-1. Identifica si busca comprar o arrendar
-2. Pregunta si busca apartamento o casa
-3. Pregunta por zona mencionando algunas de las zonas disponibles como ejemplo
-4. Pregunta el presupuesto aproximado
-5. Con esos 4 datos: di que tienes opciones y pide nombre + WhatsApp para conectarlo con ${agentName}
-6. Cuando dé su número: verifica que tenga exactamente 10 dígitos. Si no, dile amablemente que parece incompleto y pídele que lo escriba de nuevo. No guardes el contacto hasta tener un número válido.
-7. Cuando dé contacto válido: confirma con entusiasmo y cierra la conversación. No menciones el horario de atención.
+━━━ ESTILO DE RESPUESTA ━━━
+- Máximo 2 frases por mensaje + 1 sola pregunta al final
+- Tono: cálido, directo, como un amigo experto — nunca vendedor insistente
+- NUNCA repitas preguntas — usa todo lo que el usuario ya dijo
+- Si el usuario envía varios datos a la vez, extráelos todos y pregunta solo lo que falta
+- Responde siempre en español colombiano natural
+- Menciona ${city} en los primeros mensajes para contextualizar
 
-CAPTURA DE LEAD — cuando el usuario muestre intención clara o dé su contacto, añade al FINAL de tu respuesta en línea separada:
-[LEAD:name=X,phone=X,budget=X,zone=X,operation=X,property_type=X]
+━━━ CALIFICACIÓN CONTINUA DEL LEAD ━━━
+Evalúa la temperatura en cada respuesta según estas señales:
+
+HOT (caliente): presupuesto definido + zona específica + señal de urgencia
+  Señales: "ya tengo el dinero", "busco para este mes", "quiero ver ya", "estoy decidido", "tengo preaprobado el crédito"
+
+WARM (tibio): tiene criterios claros pero falta urgencia o algún dato
+  Señales: compara opciones, pregunta detalles específicos, tiene presupuesto pero sin zona o viceversa
+
+COLD (frío): exploración general sin datos concretos
+  Señales: respuestas vagas, "solo estoy mirando", sin presupuesto definido, preguntas genéricas
+
+━━━ ESTRATEGIA ADAPTATIVA ━━━
+No sigas un guión rígido. Lee cada conversación y adapta:
+
+→ Usuario llega con datos (presupuesto, zona, tipo): reconócelos, profundiza en lo que falta
+→ Usuario sin datos: guíalo con preguntas abiertas sobre intención → tipo → zona → presupuesto
+→ Match en catálogo: menciónalo proactivamente: "Tenemos algo que puede interesarte: [detalles]"
+→ Sin match exacto: menciona la más cercana y explica por qué podría funcionar
+→ Cuando tengas intención + tipo + zona + presupuesto O el usuario muestre interés real:
+   pide nombre + número de WhatsApp para conectarlo con un asesor
+→ Valida el número: debe tener exactamente 10 dígitos. Si no, pídelo amablemente de nuevo.
+→ Al confirmar contacto: cierra con entusiasmo. No menciones horarios de atención.${formatPropertiesForAI(properties)}
+
+━━━ CAPTURA DE LEAD ━━━
+Cuando el usuario muestre intención clara o dé su contacto, añade al FINAL de tu respuesta (en línea separada):
+[LEAD:name=X,phone=X,budget=X,zone=X,operation=X,property_type=X,score=hot|warm|cold,interest=X]
 
 Reglas del tag:
-- Solo incluye los campos que el usuario mencionó explícitamente
-- operation: usar "compra" o "arriendo" según lo que dijo
-- property_type: usar "apartamento" o "casa" según lo que dijo
-- Omite los campos que no mencionó
-- No uses valores de ejemplo ni texto literal como VALOR, null o undefined
-- No incluyas el tag si no hay datos reales del usuario${formatPropertiesForAI(properties)}`;
+- score: SIEMPRE incluir (hot / warm / cold según tu evaluación actual de la conversación)
+- interest: título corto sin comas (máx 4 palabras) de la propiedad del catálogo que el usuario mencionó o preguntó — omitir si no mencionó ninguna
+- operation: "compra" o "arriendo"
+- Incluir solo campos con datos reales del usuario — omitir los demás
+- No usar valores de ejemplo ni null / undefined / VALOR`;
 }
+
+// ── Parse lead tag from Claude response ──────────────────────────────────────
 
 function extractLeadTag(text) {
   const match = text.match(/\[LEAD:([^\]]+)\]/);
   if (!match) return { cleanText: text.trim(), lead: null };
 
-  const leadRaw = match[1];
   const lead = {};
+  const PLACEHOLDERS = new Set(['VALOR', 'NOMBRE', 'TELEFONO', 'PRESUPUESTO', 'ZONA', '', 'NULL', 'UNDEFINED', 'X']);
 
-  leadRaw.split(',').forEach(pair => {
+  match[1].split(',').forEach(pair => {
     const eqIdx = pair.indexOf('=');
     if (eqIdx === -1) return;
-    const key = pair.slice(0, eqIdx).trim();
+    const key   = pair.slice(0, eqIdx).trim();
     const value = pair.slice(eqIdx + 1).trim();
-    const placeholders = ['VALOR', 'NOMBRE', 'TELEFONO', 'PRESUPUESTO', 'ZONA', '', 'null', 'undefined'];
-    if (key && value && !placeholders.includes(value.toUpperCase()) && !placeholders.includes(value)) {
+    if (key && value && !PLACEHOLDERS.has(value.toUpperCase())) {
       lead[key] = value;
     }
   });
 
   const cleanText = text.replace(/\[LEAD:[^\]]+\]/, '').trim();
 
-  // Lead is only valid if it has a phone OR both budget and zone
-  const hasPhone = !!lead.phone;
-  const hasBudgetAndZone = !!(lead.budget && lead.zone);
-  const hasOperationAndProperty = !!(lead.operation && lead.property_type);
-  const isValid = hasPhone || hasBudgetAndZone || hasOperationAndProperty;
+  const hasPhone            = !!lead.phone;
+  const hasBudgetAndZone    = !!(lead.budget && lead.zone);
+  const hasOperationAndType = !!(lead.operation && lead.property_type);
+  const hasScore            = !!lead.score;
+  const isValid = hasPhone || hasBudgetAndZone || hasOperationAndType || hasScore;
 
-  return {
-    cleanText,
-    lead: isValid ? lead : null,
-  };
+  return { cleanText, lead: isValid ? lead : null };
 }
+
+// ── Call Claude API ──────────────────────────────────────────────────────────
 
 async function generateReply(systemPrompt, history, userMessage) {
   const messages = [
@@ -148,7 +182,10 @@ async function generateReply(systemPrompt, history, userMessage) {
   logger.info('claudeService', 'Claude responded', {
     inputTokens: response.usage.input_tokens,
     outputTokens: response.usage.output_tokens,
-    estimatedCostUSD: ((response.usage.input_tokens * 0.00000025) + (response.usage.output_tokens * 0.00000125)).toFixed(6),
+    estimatedCostUSD: (
+      (response.usage.input_tokens  * 0.00000025) +
+      (response.usage.output_tokens * 0.00000125)
+    ).toFixed(6),
   });
 
   return extractLeadTag(rawText);

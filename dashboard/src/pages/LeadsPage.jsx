@@ -15,6 +15,24 @@ const STATUS_COLORS = {
   closed: '#10b981',
 };
 
+const SCORE_CONFIG = {
+  hot:  { label: 'Caliente', bg: '#fef2f2', color: '#dc2626', dot: '#ef4444' },
+  warm: { label: 'Tibio',    bg: '#fffbeb', color: '#d97706', dot: '#f59e0b' },
+  cold: { label: 'Frío',     bg: '#f8fafc', color: '#64748b', dot: '#94a3b8' },
+};
+
+function ScoreBadge({ score }) {
+  if (!score) return null;
+  const cfg = SCORE_CONFIG[score];
+  if (!cfg) return null;
+  return (
+    <span className="score-badge" style={{ background: cfg.bg, color: cfg.color }}>
+      <span className="score-dot" style={{ background: cfg.dot }} />
+      {cfg.label}
+    </span>
+  );
+}
+
 function exportCSV(leads) {
   const headers = ['Nombre', 'Teléfono', 'Email', 'Interés', 'Zona', 'Presupuesto', 'Estado', 'Fecha'];
   const rows = leads.map(l => [
@@ -150,16 +168,16 @@ export default function LeadsPage() {
           <table className="leads-table">
             <thead>
               <tr>
+                <th className="sortable" onClick={() => toggleSort('lead_score')}>
+                  Temp <SortIcon field="lead_score" sort={sort} />
+                </th>
                 <th className="sortable" onClick={() => toggleSort('name')}>
                   Nombre <SortIcon field="name" sort={sort} />
                 </th>
                 <th>Teléfono</th>
-                <th>Email</th>
-                <th className="sortable" onClick={() => toggleSort('interest')}>
-                  Interés <SortIcon field="interest" sort={sort} />
-                </th>
                 <th>Zona</th>
                 <th>Presupuesto</th>
+                <th>Propiedad de interés</th>
                 <th className="sortable" onClick={() => toggleSort('status')}>
                   Estado <SortIcon field="status" sort={sort} />
                 </th>
@@ -171,12 +189,12 @@ export default function LeadsPage() {
             <tbody>
               {filtered.map(lead => (
                 <tr key={lead.id}>
+                  <td><ScoreBadge score={lead.lead_score} /></td>
                   <td><strong>{lead.name || '—'}</strong></td>
                   <td>{lead.phone || '—'}</td>
-                  <td>{lead.email || '—'}</td>
-                  <td>{lead.interest || '—'}</td>
                   <td>{lead.zone || '—'}</td>
                   <td>{lead.budget || '—'}</td>
+                  <td>{lead.property_interest ? <span className="interest-tag">{lead.property_interest}</span> : '—'}</td>
                   <td>
                     <select
                       className="status-select"

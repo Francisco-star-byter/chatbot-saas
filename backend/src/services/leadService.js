@@ -2,9 +2,8 @@ const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
 
 async function saveLead(clientId, leadData) {
-  const { name, phone, budget, zone, operation, property_type } = leadData;
+  const { name, phone, budget, zone, operation, property_type, score, interest } = leadData;
 
-  // Check if lead with same phone already exists for this client
   if (phone) {
     const { data: existing } = await supabase
       .from('leads')
@@ -15,30 +14,34 @@ async function saveLead(clientId, leadData) {
 
     if (existing) {
       const updates = {};
-      if (name) updates.name = name;
-      if (budget) updates.budget = budget;
-      if (zone) updates.zone = zone;
-      if (operation) updates.operation = operation;
-      if (property_type) updates.property_type = property_type;
+      if (name)          updates.name              = name;
+      if (budget)        updates.budget            = budget;
+      if (zone)          updates.zone              = zone;
+      if (operation)     updates.operation         = operation;
+      if (property_type) updates.property_type     = property_type;
+      if (score)         updates.lead_score        = score;
+      if (interest)      updates.property_interest = interest;
 
       if (Object.keys(updates).length > 0) {
         await supabase.from('leads').update(updates).eq('id', existing.id);
         logger.info('leadService', 'Lead updated (duplicate phone)', { id: existing.id, clientId });
       }
-      return { id: existing.id, isUpdate: true, leadData: { ...leadData } };
+      return { id: existing.id, isUpdate: true, leadData };
     }
   }
 
   const { data, error } = await supabase
     .from('leads')
     .insert({
-      client_id: clientId,
-      name: name || null,
-      phone: phone || null,
-      budget: budget || null,
-      zone: zone || null,
-      operation: operation || null,
-      property_type: property_type || null,
+      client_id:         clientId,
+      name:              name          || null,
+      phone:             phone         || null,
+      budget:            budget        || null,
+      zone:              zone          || null,
+      operation:         operation     || null,
+      property_type:     property_type || null,
+      lead_score:        score         || null,
+      property_interest: interest      || null,
       status: 'new',
     })
     .select('id')
@@ -46,8 +49,8 @@ async function saveLead(clientId, leadData) {
 
   if (error) throw new Error(`Failed to save lead: ${error.message}`);
 
-  logger.info('leadService', 'Lead saved', { id: data.id, clientId, phone, zone, budget, operation, property_type });
-  return { id: data.id, isUpdate: false, leadData: { ...leadData } };
+  logger.info('leadService', 'Lead saved', { id: data.id, clientId, phone, zone, budget, score });
+  return { id: data.id, isUpdate: false, leadData };
 }
 
 async function getLeads(clientId, { status, limit = 50, offset = 0 } = {}) {

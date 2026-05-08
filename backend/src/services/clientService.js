@@ -26,7 +26,7 @@ async function getClientWithConfig(clientId) {
       .single(),
     supabase
       .from('properties')
-      .select('id, title, operation_type, property_type, status, price, city, zone, estrato, bedrooms, bathrooms, area_sqm, amenities, ai_description, description, featured')
+      .select('id, title, operation_type, property_type, status, price, city, zone, estrato, bedrooms, bathrooms, area_sqm, amenities, ai_description, description, featured, images')
       .eq('client_id', clientId)
       .eq('status', 'available')
       .order('featured', { ascending: false })

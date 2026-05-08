@@ -492,7 +492,7 @@
         applyStyles();
       }
       if (data.widget_position) cfg.position = data.widget_position;
-      if (data.whatsapp_number)  { cfg.whatsapp = data.whatsapp_number; updateWhatsApp(); }
+      if (data.whatsapp_number)  { cfg.whatsapp = data.whatsapp_number; }
 
       cachedGreeting = data.greeting || '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
       return cachedGreeting;
@@ -538,6 +538,9 @@
         addMsg('bot', data.reply);
         if (data.show_properties && data.show_properties.length) {
           addPropertyCards(data.show_properties);
+        }
+        if (data.lead_score === 'warm' || data.lead_score === 'hot') {
+          updateWhatsApp();
         }
       }
     } catch(err) {

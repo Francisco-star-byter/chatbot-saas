@@ -61,10 +61,12 @@ async function chatController(req, res, next) {
 
     // 10. Save lead if detected
     let leadDetected = false;
+    let leadScore = null;
     if (lead) {
       const { isUpdate } = await saveLead(client_id, lead, convId);
       leadDetected = true;
-      logger.info('chatController', 'Lead detected and saved', { client_id, convId, isUpdate });
+      leadScore = lead.score || null;
+      logger.info('chatController', 'Lead detected and saved', { client_id, convId, isUpdate, score: leadScore });
     }
 
     logger.info('chatController', 'Response sent', { client_id, convId, leadDetected, cards: showProperties.length });
@@ -73,6 +75,7 @@ async function chatController(req, res, next) {
       reply,
       conversation_id: convId,
       lead_detected: leadDetected,
+      lead_score: leadScore,
       show_properties: showProperties.length ? showProperties : undefined,
     });
 

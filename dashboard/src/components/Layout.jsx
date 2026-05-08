@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getLeads } from '../lib/api';
 
@@ -17,6 +17,7 @@ const POLL_INTERVAL = 30000;
 
 export default function Layout() {
   const [newLeadCount, setNewLeadCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const knownIds = useRef(null);
 
   useEffect(() => {
@@ -61,9 +62,22 @@ export default function Layout() {
     await supabase.auth.signOut();
   }
 
+  function closeMenu() { setMenuOpen(false); }
+
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      {/* Mobile top header */}
+      <header className="mobile-header">
+        <span className="mobile-logo">🏠 ChatBot</span>
+        <button className="hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Menú">
+          <span /><span /><span />
+        </button>
+      </header>
+
+      {/* Sidebar drawer overlay on mobile */}
+      {menuOpen && <div className="sidebar-overlay" onClick={closeMenu} />}
+
+      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-logo">🏠 ChatBot</div>
         <nav className="sidebar-nav">
           {NAV.map(({ to, label }) => (
@@ -72,7 +86,7 @@ export default function Layout() {
               to={to}
               end={to === '/dashboard'}
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              onClick={to === '/dashboard/leads' ? () => setNewLeadCount(0) : undefined}
+              onClick={() => { closeMenu(); if (to === '/dashboard/leads') setNewLeadCount(0); }}
             >
               {label}
               {to === '/dashboard/leads' && newLeadCount > 0 && (
@@ -83,6 +97,7 @@ export default function Layout() {
         </nav>
         <button className="btn-logout" onClick={handleLogout}>Cerrar sesión</button>
       </aside>
+
       <main className="main-content">
         <Outlet />
       </main>

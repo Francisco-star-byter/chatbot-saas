@@ -1039,8 +1039,22 @@ img, video, svg { max-width: 100%; display: block; }
   .property-grid    { grid-template-columns: 1fr 1fr; }
   .img-grid         { grid-template-columns: repeat(3, 1fr); }
 
-  /* ── Kanban: columns have fixed width, outer wrapper scrolls ── */
-  .kanban-board { grid-template-columns: repeat(4, 240px); gap: 10px; }
+  /* ── Kanban: columns stack vertically, cards scroll horizontally inside each col ── */
+  .kanban-scroll { overflow-x: visible; }
+  .kanban-board  { grid-template-columns: 1fr; gap: 16px; }
+
+  .kanban-cards {
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+    min-height: 0;
+  }
+  .kanban-cards::-webkit-scrollbar { display: none; }
+
+  .kanban-card { min-width: 200px; flex-shrink: 0; }
 
   /* ── Leads ── */
   .leads-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
@@ -1108,8 +1122,8 @@ img, video, svg { max-width: 100%; display: block; }
   .analytics-card { padding: 14px; }
   .page h1       { font-size: 18px; }
 
-  /* Kanban: narrower cards */
-  .kanban-board { grid-template-columns: repeat(4, 200px); }
+  /* Kanban: narrower cards on very small screens */
+  .kanban-card { min-width: 170px; }
 
   /* Properties */
   .property-img { height: 140px; }

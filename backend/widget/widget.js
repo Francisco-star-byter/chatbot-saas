@@ -189,15 +189,6 @@
 }
 
 /* WhatsApp bar */
-#cb-wa {
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  padding:9px 16px; background:#f0fdf4; border-top:1px solid #dcfce7;
-  color:#16a34a; font-size:13px; font-weight:600;
-  text-decoration:none; flex-shrink:0;
-  transition:background .15s; font-family:inherit;
-}
-#cb-wa:hover { background:#dcfce7; }
-#cb-wa svg   { width:18px; height:18px; flex-shrink:0; }
 
 #cb-form {
   display:flex; border-top:1px solid #e2e8f0;
@@ -351,22 +342,6 @@
     if (av) av.textContent = initials(cfg.agent);
   }
 
-  function updateWhatsApp() {
-    var existing = document.getElementById('cb-wa');
-    if (existing) existing.remove();
-    if (!cfg.whatsapp) return;
-    var num = cfg.whatsapp.replace(/\D/g,'');
-    var a = document.createElement('a');
-    a.id = 'cb-wa';
-    a.href = 'https://wa.me/57' + num + '?text=Hola%2C%20me%20interesa%20una%20propiedad';
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.innerHTML = I.wa + ' Hablar con asesor por WhatsApp';
-    var footer = document.getElementById('cb-footer');
-    var form   = document.getElementById('cb-form');
-    if (footer && form) footer.insertBefore(a, form);
-  }
-
   // ── Messages ─────────────────────────────────────────────────────────────────
   function addMsg(sender, text) {
     var msgs = document.getElementById('cb-messages');
@@ -492,7 +467,6 @@
         applyStyles();
       }
       if (data.widget_position) cfg.position = data.widget_position;
-      if (data.whatsapp_number)  { cfg.whatsapp = data.whatsapp_number; }
 
       cachedGreeting = data.greeting || '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?';
       return cachedGreeting;
@@ -538,9 +512,6 @@
         addMsg('bot', data.reply);
         if (data.show_properties && data.show_properties.length) {
           addPropertyCards(data.show_properties);
-        }
-        if (data.lead_score === 'warm' || data.lead_score === 'hot') {
-          updateWhatsApp();
         }
       }
     } catch(err) {

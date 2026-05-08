@@ -228,7 +228,7 @@ export default function LeadsPage() {
                   <td>{lead.phone || '—'}</td>
                   <td>{lead.zone || '—'}</td>
                   <td>{formatBudget(lead.budget)}</td>
-                  <td>{lead.property_interest ? <span className="interest-tag">{lead.property_interest}</span> : '—'}</td>
+                  <td>{lead.property_interest ? <span className="interest-tag">{lead.property_interest.replace(/\b\w/g, c => c.toUpperCase())}</span> : '—'}</td>
                   <td>
                     <select
                       className="status-select"

@@ -168,6 +168,7 @@ export default function PipelinePage() {
         <span style={{ fontSize: 13, color: '#94a3b8' }}>{leads.length} leads en total</span>
       </div>
 
+      <div className="kanban-scroll">
       <div className="kanban-board">
         {COLUMNS.map(col => {
           const colLeads = leads.filter(l => (l.status || 'new') === col.key);
@@ -222,6 +223,7 @@ export default function PipelinePage() {
             </div>
           );
         })}
+      </div>
       </div>
 
       {selected && (

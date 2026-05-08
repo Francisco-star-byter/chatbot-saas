@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getLeads } from '../lib/api';
 
 const NAV = [
-  { to: '/dashboard',                  label: '🏠 Panel' },
-  { to: '/dashboard/properties',       label: '🏢 Propiedades' },
-  { to: '/dashboard/pipeline',         label: '🔄 Pipeline' },
-  { to: '/dashboard/leads',            label: '📋 Leads' },
-  { to: '/dashboard/conversations',    label: '💬 Conversaciones' },
-  { to: '/dashboard/analytics',        label: '📊 Analíticas' },
-  { to: '/dashboard/config',           label: '⚙️ Configuración' },
+  { to: '/dashboard',               label: '🏠 Panel' },
+  { to: '/dashboard/properties',    label: '🏢 Propiedades' },
+  { to: '/dashboard/pipeline',      label: '🔄 Pipeline' },
+  { to: '/dashboard/leads',         label: '📋 Leads' },
+  { to: '/dashboard/conversations', label: '💬 Conversaciones' },
+  { to: '/dashboard/analytics',     label: '📊 Analíticas' },
+  { to: '/dashboard/config',        label: '⚙️ Configuración' },
 ];
 
 const POLL_INTERVAL = 30000;
@@ -19,6 +19,18 @@ export default function Layout() {
   const [newLeadCount, setNewLeadCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const knownIds = useRef(null);
+  const location = useLocation();
+
+  /* Close sidebar whenever the route changes (mobile navigation) */
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  /* Lock body scroll when mobile sidebar is open */
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -29,15 +41,12 @@ export default function Layout() {
       try {
         const leads = await getLeads();
         if (!Array.isArray(leads)) return;
-
         if (knownIds.current === null) {
           knownIds.current = new Set(leads.map(l => l.id));
           return;
         }
-
         const fresh = leads.filter(l => !knownIds.current.has(l.id));
         if (fresh.length === 0) return;
-
         fresh.forEach(lead => {
           knownIds.current.add(lead.id);
           if ('Notification' in window && Notification.permission === 'granted') {
@@ -69,15 +78,20 @@ export default function Layout() {
       {/* Mobile top header */}
       <header className="mobile-header">
         <span className="mobile-logo">🏠 ChatBot</span>
-        <button className="hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Menú">
+        <button
+          className="hamburger"
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuOpen}
+        >
           <span /><span /><span />
         </button>
       </header>
 
-      {/* Sidebar drawer overlay on mobile */}
-      {menuOpen && <div className="sidebar-overlay" onClick={closeMenu} />}
+      {/* Sidebar drawer overlay (mobile only) */}
+      {menuOpen && <div className="sidebar-overlay" onClick={closeMenu} aria-hidden="true" />}
 
-      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
+      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`} aria-label="Navegación principal">
         <div className="sidebar-logo">🏠 ChatBot</div>
         <nav className="sidebar-nav">
           {NAV.map(({ to, label }) => (
@@ -86,7 +100,7 @@ export default function Layout() {
               to={to}
               end={to === '/dashboard'}
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              onClick={() => { closeMenu(); if (to === '/dashboard/leads') setNewLeadCount(0); }}
+              onClick={() => { if (to === '/dashboard/leads') setNewLeadCount(0); }}
             >
               {label}
               {to === '/dashboard/leads' && newLeadCount > 0 && (

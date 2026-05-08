@@ -208,14 +208,14 @@ export default function LeadsPage() {
                 <th className="sortable" onClick={() => toggleSort('name')}>
                   Nombre <SortIcon field="name" sort={sort} />
                 </th>
-                <th>Teléfono</th>
-                <th>Zona</th>
-                <th>Presupuesto</th>
-                <th>Propiedad de interés</th>
+                <th className="col-hide-md">Teléfono</th>
+                <th className="col-hide-sm">Zona</th>
+                <th className="col-hide-md">Presupuesto</th>
+                <th className="col-hide-md">Propiedad de interés</th>
                 <th className="sortable" onClick={() => toggleSort('status')}>
                   Estado <SortIcon field="status" sort={sort} />
                 </th>
-                <th className="sortable" onClick={() => toggleSort('created_at')}>
+                <th className="sortable col-hide-sm" onClick={() => toggleSort('created_at')}>
                   Fecha <SortIcon field="created_at" sort={sort} />
                 </th>
               </tr>
@@ -225,10 +225,10 @@ export default function LeadsPage() {
                 <tr key={lead.id}>
                   <td><ScoreBadge score={lead.lead_score} /></td>
                   <td><strong>{lead.name || '—'}</strong></td>
-                  <td>{lead.phone || '—'}</td>
-                  <td>{lead.zone || '—'}</td>
-                  <td>{formatBudget(lead.budget)}</td>
-                  <td>{lead.property_interest ? <span className="interest-tag">{lead.property_interest.replace(/\b\w/g, c => c.toUpperCase())}</span> : '—'}</td>
+                  <td className="col-hide-md">{lead.phone || '—'}</td>
+                  <td className="col-hide-sm">{lead.zone || '—'}</td>
+                  <td className="col-hide-md">{formatBudget(lead.budget)}</td>
+                  <td className="col-hide-md">{lead.property_interest ? <span className="interest-tag">{lead.property_interest.replace(/\b\w/g, c => c.toUpperCase())}</span> : '—'}</td>
                   <td>
                     <select
                       className="status-select"
@@ -241,7 +241,7 @@ export default function LeadsPage() {
                       ))}
                     </select>
                   </td>
-                  <td>{lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-CO') : '—'}</td>
+                  <td className="col-hide-sm">{lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-CO') : '—'}</td>
                 </tr>
               ))}
             </tbody>

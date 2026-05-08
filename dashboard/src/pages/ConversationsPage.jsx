@@ -152,27 +152,25 @@ export default function ConversationsPage() {
           {detail && !loadingDetail && (
             <>
               <div className="conv-thread-header">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
                   <button className="conv-back-btn" onClick={() => setMobileView('list')}>← Volver</button>
-                  <div>
-                    <strong style={{ fontSize: 14 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong style={{ fontSize: 14, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {detail.lead?.name || 'Visitante anónimo'}
                     </strong>
                     {detail.lead?.phone && (
-                      <span style={{ marginLeft: 10, fontSize: 13, color: '#64748b' }}>
-                        {detail.lead.phone}
-                      </span>
+                      <span style={{ fontSize: 13, color: '#64748b' }}>{detail.lead.phone}</span>
                     )}
                   </div>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
                     {detail.lead?.lead_score && <ScoreBadge score={detail.lead.lead_score} />}
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                    <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
                       {formatFull(detail.conversation.created_at)}
                     </span>
                   </div>
                 </div>
                 {detail.lead && (
-                  <div style={{ marginTop: 8, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {detail.lead.property_interest && (
                       <span className="interest-tag">🏠 {detail.lead.property_interest}</span>
                     )}

@@ -114,7 +114,7 @@ async function updateConfig(req, res, next) {
 
     if (!client) return res.status(404).json({ error: 'Account not set up yet' });
 
-    const allowed = ['tone', 'zones', 'services', 'custom_prompt', 'business_name', 'location', 'agent_name', 'price_range', 'working_hours'];
+    const allowed = ['tone', 'zones', 'services', 'custom_prompt', 'business_name', 'location', 'agent_name', 'price_range', 'working_hours', 'whatsapp_number', 'widget_color', 'widget_position'];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];

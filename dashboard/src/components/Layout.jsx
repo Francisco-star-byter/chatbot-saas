@@ -9,6 +9,7 @@ const NAV = [
   { to: '/dashboard/pipeline',         label: '🔄 Pipeline' },
   { to: '/dashboard/leads',            label: '📋 Leads' },
   { to: '/dashboard/conversations',    label: '💬 Conversaciones' },
+  { to: '/dashboard/analytics',        label: '📊 Analíticas' },
   { to: '/dashboard/config',           label: '⚙️ Configuración' },
 ];
 

@@ -3,6 +3,7 @@ const { getOrCreateConversation, getRecentMessages, saveMessage } = require('../
 const { saveLead } = require('../services/leadService');
 const { buildSystemPrompt, generateReply } = require('../services/claudeService');
 const { checkLimit, incrementUsage } = require('../services/usageService');
+const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
 
 async function chatController(req, res, next) {
@@ -72,14 +73,41 @@ async function greetingController(req, res) {
     const client = await getClientWithConfig(client_id);
     if (!client) return res.status(404).json({ error: 'Client not found' });
 
-    const name = client.config.business_name || 'nosotros';
-    const agentName = client.config.agent_name || 'Asesor Inmobiliario';
-    const city = client.config.location ? ` en ${client.config.location}` : '';
+    const cfg = client.config;
+    const name = cfg.business_name || 'nosotros';
+    const agentName = cfg.agent_name || 'Asesor Inmobiliario';
+    const city = cfg.location ? ` en ${cfg.location}` : '';
     const greeting = `¡Hola! Soy ${agentName}, el asistente virtual de ${name}${city}. ¿Estás buscando comprar o arrendar una propiedad?`;
-    res.json({ greeting, agent_name: agentName });
+
+    res.json({
+      greeting,
+      agent_name: agentName,
+      widget_color: cfg.widget_color || '#2563eb',
+      widget_position: cfg.widget_position || 'right',
+      whatsapp_number: cfg.whatsapp_number || '',
+    });
   } catch (err) {
     res.json({ greeting: '¡Hola! ¿Estás buscando comprar o arrendar una propiedad?' });
   }
 }
 
-module.exports = { chatController, greetingController };
+async function publicPropertiesController(req, res) {
+  const { client_id } = req.query;
+  if (!client_id) return res.status(400).json({ error: 'Missing client_id' });
+
+  try {
+    const { data } = await supabase
+      .from('properties')
+      .select('id, title, operation_type, price, zone, city, bedrooms, bathrooms, area_sqm, images, featured')
+      .eq('client_id', client_id)
+      .eq('status', 'available')
+      .order('featured', { ascending: false })
+      .limit(6);
+
+    res.json(data || []);
+  } catch {
+    res.json([]);
+  }
+}
+
+module.exports = { chatController, greetingController, publicPropertiesController };

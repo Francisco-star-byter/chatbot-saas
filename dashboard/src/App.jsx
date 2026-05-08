@@ -10,6 +10,7 @@ import LeadsPage from './pages/LeadsPage';
 import PropertiesPage from './pages/PropertiesPage';
 import ConversationsPage from './pages/ConversationsPage';
 import PipelinePage from './pages/PipelinePage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="pipeline" element={<PipelinePage />} />
             <Route path="leads" element={<LeadsPage />} />
             <Route path="conversations" element={<ConversationsPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="config" element={<ConfigPage />} />
           </Route>
 
